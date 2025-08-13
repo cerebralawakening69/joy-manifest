@@ -8,7 +8,7 @@ import { saveQuizAnswers } from "@/hooks/useQuizAnswers";
 
 export const useQuizLogic = () => {
   const { toast } = useToast();
-  const { trackingData, startQuizTracking, getCompletionData } = useTracking();
+  const { trackingData, startQuizTracking, getCompletionData, getAffiliateLink, trackEvent } = useTracking();
   const [quizState, setQuizState] = useState<QuizState>({
     currentScreen: 0,
     answers: {},
@@ -26,6 +26,7 @@ export const useQuizLogic = () => {
 
   const startQuiz = () => {
     startQuizTracking();
+    trackEvent('quiz_started', { timestamp: new Date().toISOString() });
     setQuizState(prev => ({ ...prev, currentScreen: 1 }));
   };
 
@@ -37,11 +38,21 @@ export const useQuizLogic = () => {
     setSelectedAnswer(answer);
     setSoundTrigger("answer_select");
     
+    // Track answer selection
+    trackEvent('quiz_answer', {
+      questionId,
+      answerId: answer.id,
+      answerValue: answer.value,
+      answerText: answer.text,
+      timestamp: new Date().toISOString()
+    });
+    
     // Show revelation for first question
     if (questionId === "primary_desire") {
       setTimeout(() => {
         setSoundTrigger("revelation");
         setShowRevelation(true);
+        trackEvent('revelation_shown', { questionId, timestamp: new Date().toISOString() });
       }, 1000);
     }
     // Show pattern recognition for second question  
@@ -49,12 +60,14 @@ export const useQuizLogic = () => {
       setTimeout(() => {
         setSoundTrigger("pattern_detected");
         setShowPattern(true);
+        trackEvent('pattern_shown', { questionId, timestamp: new Date().toISOString() });
       }, 1000);
     }
     // Go to email capture for third question
     else if (questionId === "main_block") {
       setTimeout(() => {
         setQuizState(prev => ({ ...prev, currentScreen: 4 }));
+        trackEvent('email_screen_reached', { timestamp: new Date().toISOString() });
       }, 1000);
     }
   };
@@ -71,6 +84,13 @@ export const useQuizLogic = () => {
 
   const submitEmailAndName = async (email: string, name: string) => {
     setQuizState(prev => ({ ...prev, email, name }));
+    
+    // Track email submission
+    trackEvent('email_submitted', {
+      email,
+      name,
+      timestamp: new Date().toISOString()
+    });
     
     // Calculate final profile
     const profile = getManifestationProfile(quizState.answers);
@@ -122,6 +142,16 @@ export const useQuizLogic = () => {
         await saveQuizAnswers(quizData.id, quizState.answers);
       }
 
+      // Track quiz completion
+      trackEvent('quiz_completed', {
+        profile: profile.title,
+        email,
+        name,
+        answers: quizState.answers,
+        readinessScore: 75,
+        timestamp: new Date().toISOString()
+      });
+
       toast({
         title: "Success!",
         description: "Your manifestation profile has been revealed!"
@@ -169,8 +199,15 @@ export const useQuizLogic = () => {
   };
 
   const handleContinueToVSL = () => {
-    // Redirect to the affiliate sales page
-    window.open('https://pxt.pinealxt.com/ds/presentation/index.php#aff=awakeningprotocol', '_blank');
+    // Track affiliate link click
+    trackEvent('affiliate_link_clicked', {
+      timestamp: new Date().toISOString(),
+      affiliateId: trackingData.affiliate_id
+    });
+    
+    // Redirect to the affiliate sales page using tracked affiliate ID
+    const affiliateLink = getAffiliateLink();
+    window.open(affiliateLink, '_blank');
   };
 
   const handleDiscoveryUnlock = (discovery: any) => {

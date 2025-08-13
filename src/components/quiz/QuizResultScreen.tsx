@@ -68,81 +68,87 @@ export const QuizResultScreen = ({ profile, onContinue }: QuizResultScreenProps)
           <div className="space-y-6 text-left">
             <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-6 rounded-xl border-l-4 border-primary">
               <h3 className="text-xl font-bold mb-3 text-primary">
-                🚨 SHOCKING SCIENTIFIC DISCOVERY ABOUT YOUR PINEAL GLAND
+                🔮 WHAT IF EVERYTHING YOU KNEW ABOUT REALITY WAS WRONG?
               </h3>
               <p className="text-base leading-relaxed text-foreground">
-                Congratulations! Your <span className="font-bold text-primary">{profile.title}</span> profile reveals you have a natural connection to higher manifestation frequencies.
+                Imagine a tiny, pinecone-shaped gland hidden deep in your brain – no bigger than a pea – that holds the key to unlocking infinite wealth, profound healing, and even psychic abilities. This isn't science fiction. <span className="font-bold text-primary">This is the suppressed truth about your pineal gland</span>… the "third eye" revered by ancient civilizations and hidden in plain sight across sacred sites worldwide.
               </p>
             </div>
 
             <div className="space-y-4">
-              <p className="text-base leading-relaxed">
-                <span className="font-bold text-destructive">BUT HERE'S THE PROBLEM:</span> Recent Harvard University studies discovered that <span className="font-bold text-primary">93% of people have a CALCIFIED pineal gland</span> caused by a substance found in water, toothpaste, and processed foods.
-              </p>
-
-              <p className="text-base leading-relaxed">
-                This calcification is literally <span className="font-bold text-destructive">BLOCKING your third eye</span> and preventing you from accessing:
-              </p>
-
-              <div className="bg-muted/30 p-5 rounded-xl">
-                <ul className="space-y-2">
-                  <li className="flex items-center gap-3">
-                    <span className="text-golden text-xl">✨</span>
-                    <span>Instant and powerful manifestations</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="text-purple-magic text-xl">🧠</span>
-                    <span>Sharp intuition for money opportunities</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="text-energy-pink text-xl">⚡</span>
-                    <span>Direct connection to the quantum field</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="text-primary text-xl">🎯</span>
-                    <span>Clear visions of your abundant future</span>
-                  </li>
-                </ul>
-              </div>
-
-              <p className="text-base leading-relaxed">
-                The good news? A neuroscientist discovered a <span className="font-bold text-primary">natural 30-second protocol</span> that can decalcify your pineal in just 21 days.
-              </p>
-
-              <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-5 rounded-xl border border-primary/20">
+              <div className="bg-gradient-to-r from-destructive/10 to-destructive/5 p-5 rounded-xl border-l-4 border-destructive">
                 <p className="text-base leading-relaxed font-medium">
-                  ⚠️ <span className="font-bold text-destructive">IMPORTANT WARNING:</span> This method is being SUPPRESSED by the pharmaceutical industry because people with activated pineals manifest abundance without needing expensive medications or therapies.
+                  <span className="font-bold text-destructive">But here's the shocking part:</span> For decades, this gland has been deliberately calcified and suppressed. Why? Because when activated, it grants you the power to manifest your deepest desires by connecting directly with the universe.
                 </p>
               </div>
 
-              <p className="text-base leading-relaxed">
-                <span className="font-bold text-primary">Only today</span>, you can watch the complete video that reveals:
+              <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-5 rounded-xl border border-primary/20">
+                <p className="text-base leading-relaxed font-medium">
+                  🎯 <span className="font-bold text-primary">The CIA knew this.</span> In a top-secret program called "Project Stargate," government scientists discovered a 30-second method to activate this gland – turning ordinary people into "psychic spies" capable of remote viewing, healing, and bending reality itself. But when they realized how dangerous this knowledge was to the status quo… they buried it.
+                </p>
+              </div>
+
+              <p className="text-lg font-bold text-center text-primary">
+                Now, for the first time, this secret is being revealed.
               </p>
 
               <div className="bg-muted/30 p-5 rounded-xl">
-                <ul className="space-y-2">
+                <h4 className="font-bold text-lg mb-3 text-golden">What You'll Discover in This Groundbreaking Presentation:</h4>
+                <ul className="space-y-3">
                   <li className="flex items-start gap-3">
-                    <span className="text-golden text-lg mt-1">🔬</span>
-                    <span>The exact component calcifying your pineal (you use it daily)</span>
+                    <span className="text-golden text-lg mt-1">⚡</span>
+                    <span><span className="font-bold text-purple-magic">The 30-Second Activation:</span> A simple, scientifically-backed method to "switch on" your pineal gland and open your third eye.</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="text-purple-magic text-lg mt-1">🌿</span>
-                    <span>The natural 30-second decalcification protocol</span>
+                    <span className="text-destructive text-lg mt-1">🔍</span>
+                    <span><span className="font-bold text-energy-pink">The Hidden Conspiracy:</span> How fluoride, toxins, and government programs have kept your pineal gland dormant – and why they don't want you to know.</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="text-energy-pink text-lg mt-1">⚡</span>
-                    <span>How to activate specific frequencies to manifest money</span>
+                    <span className="text-primary text-lg mt-1">🔬</span>
+                    <span><span className="font-bold text-golden">Ancient Wisdom Meets Quantum Physics:</span> Why Tesla, the Egyptians, and even the Vatican revered this gland… and how modern science confirms it's a "transceiver" for manifesting reality.</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="text-primary text-lg mt-1">🎯</span>
-                    <span>3 exercises to sync with the quantum field of abundance</span>
+                    <span className="text-purple-magic text-lg mt-1">✨</span>
+                    <span><span className="font-bold text-primary">Real-Life Transformations:</span> Stories of ordinary people who activated their pineal gland and manifested wealth, soulmates, and miraculous healings.</span>
                   </li>
                 </ul>
+              </div>
+
+              <div className="bg-gradient-to-r from-golden/20 to-primary/20 p-6 rounded-xl border-2 border-golden/30">
+                <p className="text-lg font-bold text-center mb-4 text-golden">
+                  This isn't just about abundance. It's about awakening.
+                </p>
+                <p className="text-base text-center mb-4">When your pineal gland is activated, you'll:</p>
+                <div className="grid gap-2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-golden">✅</span>
+                    <span>Effortlessly attract wealth and opportunities</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-purple-magic">✅</span>
+                    <span>Experience profound spiritual clarity and intuition</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-energy-pink">✅</span>
+                    <span>Heal your body and mind at a cellular level</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-primary">✅</span>
+                    <span>Tap into dimensions where your "ideal life" already exists</span>
+                  </div>
+                </div>
               </div>
 
               <div className="bg-gradient-to-r from-destructive/10 to-destructive/5 p-5 rounded-xl border-l-4 border-destructive">
                 <p className="text-base leading-relaxed font-medium">
-                  <span className="font-bold text-destructive">⏰ ATTENTION:</span> This video will be removed soon due to pressure from large corporations. Don't miss this unique opportunity to discover the secret that can transform your financial life forever.
+                  <span className="font-bold text-destructive">⏰ But time is running out.</span> The forces that suppressed this knowledge are working harder than ever to keep it hidden. This presentation could be taken down at any moment.
+                </p>
+              </div>
+
+              <div className="text-center">
+                <p className="text-lg font-bold mb-2 text-primary">Are You Ready to Unlock Your True Power?</p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Your reality is about to shift. The question is: Will you step into the power you were born with?
                 </p>
               </div>
             </div>

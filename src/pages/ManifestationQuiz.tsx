@@ -4,6 +4,7 @@ import { QuizQuestionScreen } from "@/components/quiz/QuizQuestionScreen";
 import { QuizRevelationScreen } from "@/components/quiz/QuizRevelationScreen";
 import { QuizPatternScreen } from "@/components/quiz/QuizPatternScreen";
 import { QuizEmailScreen } from "@/components/quiz/QuizEmailScreen";
+import { QuizPreEmailScreen } from "@/components/quiz/QuizPreEmailScreen";
 import { QuizResultScreen } from "@/components/quiz/QuizResultScreen";
 import { GamificationElements } from "@/components/quiz/GamificationElements";
 import { AchievementPopup } from "@/components/quiz/AchievementPopup";
@@ -14,6 +15,7 @@ const ManifestationQuiz = () => {
     quizState,
     showRevelation,
     showPattern,
+    showPreEmail,
     selectedAnswer,
     soundTrigger,
     currentDiscovery,
@@ -21,6 +23,7 @@ const ManifestationQuiz = () => {
     handleAnswer,
     continueFromRevelation,
     continueFromPattern,
+    continueFromPreEmail,
     submitEmailAndName,
     getCurrentQuestion,
     getRevelationText,
@@ -56,7 +59,7 @@ const ManifestationQuiz = () => {
       />
 
       {/* Hook Screen */}
-      {quizState.currentScreen === 0 && !showRevelation && !showPattern && (
+      {quizState.currentScreen === 0 && !showRevelation && !showPattern && !showPreEmail && (
         <div key="hook-screen" className="animate-fade-in">
           <QuizHookScreen onStart={startQuiz} />
         </div>
@@ -85,8 +88,18 @@ const ManifestationQuiz = () => {
         </div>
       )}
 
+      {/* Pre-Email Warning Screen */}
+      {showPreEmail && (
+        <div key="pre-email-screen" className="animate-fade-in">
+          <QuizPreEmailScreen
+            onContinue={continueFromPreEmail}
+            currentScreen={3.5}
+          />
+        </div>
+      )}
+
       {/* Question Screens */}
-      {quizState.currentScreen >= 1 && quizState.currentScreen <= 3 && !showRevelation && !showPattern && (() => {
+      {quizState.currentScreen >= 1 && quizState.currentScreen <= 3 && !showRevelation && !showPattern && !showPreEmail && (() => {
         const question = getCurrentQuestion();
         if (!question) return null;
 
@@ -102,7 +115,7 @@ const ManifestationQuiz = () => {
       })()}
 
       {/* Email Capture Screen */}
-      {quizState.currentScreen === 4 && !showRevelation && !showPattern && (
+      {quizState.currentScreen === 4 && !showRevelation && !showPattern && !showPreEmail && (
         <div key="email-screen" className="animate-fade-in">
           <QuizEmailScreen
             onSubmit={submitEmailAndName}
@@ -112,7 +125,7 @@ const ManifestationQuiz = () => {
       )}
 
       {/* Result Screen */}
-      {quizState.currentScreen === 5 && !showRevelation && !showPattern && (
+      {quizState.currentScreen === 5 && !showRevelation && !showPattern && !showPreEmail && (
         <div key="result-screen" className="animate-fade-in">
           <QuizResultScreen
             profile={getFinalProfile()}

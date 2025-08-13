@@ -20,6 +20,7 @@ export const useQuizLogic = () => {
 
   const [showRevelation, setShowRevelation] = useState(false);
   const [showPattern, setShowPattern] = useState(false);
+  const [showPreEmail, setShowPreEmail] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<QuizAnswer | null>(null);
   const [soundTrigger, setSoundTrigger] = useState<string | null>(null);
   const [currentDiscovery, setCurrentDiscovery] = useState<any>(null);
@@ -63,11 +64,11 @@ export const useQuizLogic = () => {
         trackEvent('pattern_shown', { questionId, timestamp: new Date().toISOString() });
       }, 1000);
     }
-    // Go to email capture for third question
+    // Show pre-email screen for third question
     else if (questionId === "main_block") {
       setTimeout(() => {
-        setQuizState(prev => ({ ...prev, currentScreen: 4 }));
-        trackEvent('email_screen_reached', { timestamp: new Date().toISOString() });
+        setShowPreEmail(true);
+        trackEvent('pre_email_screen_shown', { timestamp: new Date().toISOString() });
       }, 1000);
     }
   };
@@ -80,6 +81,12 @@ export const useQuizLogic = () => {
   const continueFromPattern = () => {
     setShowPattern(false);
     setQuizState(prev => ({ ...prev, currentScreen: 3 }));
+  };
+
+  const continueFromPreEmail = () => {
+    setShowPreEmail(false);
+    setQuizState(prev => ({ ...prev, currentScreen: 4 }));
+    trackEvent('email_screen_reached', { timestamp: new Date().toISOString() });
   };
 
   const submitEmailAndName = async (email: string, name: string) => {
@@ -227,6 +234,7 @@ export const useQuizLogic = () => {
     quizState,
     showRevelation,
     showPattern,
+    showPreEmail,
     selectedAnswer,
     soundTrigger,
     currentDiscovery,
@@ -234,6 +242,7 @@ export const useQuizLogic = () => {
     handleAnswer,
     continueFromRevelation,
     continueFromPattern,
+    continueFromPreEmail,
     submitEmailAndName,
     getCurrentQuestion,
     getRevelationText,

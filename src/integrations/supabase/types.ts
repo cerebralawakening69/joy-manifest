@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      quiz_manifestation: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          main_block: string
+          manifestation_frequency: string
+          manifestation_profile: string
+          name: string | null
+          primary_desire: string
+          readiness_score: number
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          main_block: string
+          manifestation_frequency: string
+          manifestation_profile: string
+          name?: string | null
+          primary_desire: string
+          readiness_score: number
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          main_block?: string
+          manifestation_frequency?: string
+          manifestation_profile?: string
+          name?: string | null
+          primary_desire?: string
+          readiness_score?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

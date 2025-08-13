@@ -154,21 +154,15 @@ export const QuizResultScreen = ({ profile, onContinue }: QuizResultScreenProps)
             </div>
 
             <div className="text-center pt-6">
-              <a 
-                href="https://bit.ly/4gMFKfX"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block"
+              <Button 
+                onClick={onContinue}
+                size="lg"
+                className="text-lg px-12 py-6 bg-gradient-primary hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl font-bold text-white animate-pulse-glow"
               >
-                <Button 
-                  size="lg"
-                  className="text-lg px-12 py-6 bg-gradient-primary hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl font-bold text-white animate-pulse-glow"
-                >
-                  🎥 WATCH REVELATION VIDEO NOW
-                  <br />
-                  <span className="text-sm opacity-90">(24-Hour Access Granted)</span>
-                </Button>
-              </a>
+                🎥 WATCH REVELATION VIDEO NOW
+                <br />
+                <span className="text-sm opacity-90">(24-Hour Access Granted)</span>
+              </Button>
               <p className="text-sm text-muted-foreground mt-3">
                 ✅ 100% Free • ✅ Science-Based • ✅ Results in 21 Days
               </p>

@@ -14,39 +14,155 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          last_login: string | null
+          name: string | null
+          password_hash: string
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          last_login?: string | null
+          name?: string | null
+          password_hash: string
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          last_login?: string | null
+          name?: string | null
+          password_hash?: string
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      quiz_answers: {
+        Row: {
+          answer_id: string
+          answer_text: string
+          answer_value: string
+          answered_at: string
+          created_at: string
+          id: string
+          question_id: string
+          quiz_id: string
+        }
+        Insert: {
+          answer_id: string
+          answer_text: string
+          answer_value: string
+          answered_at?: string
+          created_at?: string
+          id?: string
+          question_id: string
+          quiz_id: string
+        }
+        Update: {
+          answer_id?: string
+          answer_text?: string
+          answer_value?: string
+          answered_at?: string
+          created_at?: string
+          id?: string
+          question_id?: string
+          quiz_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_answers_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_manifestation"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quiz_manifestation: {
         Row: {
+          bemob_click_id: string | null
+          conversion_event_fired: boolean | null
           created_at: string | null
+          device_type: string | null
           email: string | null
+          facebook_pixel_id: string | null
           id: string
           main_block: string
           manifestation_frequency: string
           manifestation_profile: string
           name: string | null
           primary_desire: string
+          quiz_completed_at: string | null
+          quiz_started_at: string | null
           readiness_score: number
+          referrer: string | null
+          user_agent: string | null
+          user_ip: unknown | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
         }
         Insert: {
+          bemob_click_id?: string | null
+          conversion_event_fired?: boolean | null
           created_at?: string | null
+          device_type?: string | null
           email?: string | null
+          facebook_pixel_id?: string | null
           id?: string
           main_block: string
           manifestation_frequency: string
           manifestation_profile: string
           name?: string | null
           primary_desire: string
+          quiz_completed_at?: string | null
+          quiz_started_at?: string | null
           readiness_score: number
+          referrer?: string | null
+          user_agent?: string | null
+          user_ip?: unknown | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Update: {
+          bemob_click_id?: string | null
+          conversion_event_fired?: boolean | null
           created_at?: string | null
+          device_type?: string | null
           email?: string | null
+          facebook_pixel_id?: string | null
           id?: string
           main_block?: string
           manifestation_frequency?: string
           manifestation_profile?: string
           name?: string | null
           primary_desire?: string
+          quiz_completed_at?: string | null
+          quiz_started_at?: string | null
           readiness_score?: number
+          referrer?: string | null
+          user_agent?: string | null
+          user_ip?: unknown | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Relationships: []
       }

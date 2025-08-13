@@ -3,9 +3,12 @@ import { QuizState, QuizAnswer } from "@/types/quiz";
 import { quizQuestions, revelationTexts, getManifestationProfile, getPatternText } from "@/data/quizData";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTracking } from "@/hooks/useTracking";
+import { saveQuizAnswers } from "@/hooks/useQuizAnswers";
 
 export const useQuizLogic = () => {
   const { toast } = useToast();
+  const { trackingData, startQuizTracking, getCompletionData } = useTracking();
   const [quizState, setQuizState] = useState<QuizState>({
     currentScreen: 0,
     answers: {},
@@ -22,6 +25,7 @@ export const useQuizLogic = () => {
   const [currentDiscovery, setCurrentDiscovery] = useState<any>(null);
 
   const startQuiz = () => {
+    startQuizTracking();
     setQuizState(prev => ({ ...prev, currentScreen: 1 }));
   };
 
@@ -71,9 +75,12 @@ export const useQuizLogic = () => {
     // Calculate final profile
     const profile = getManifestationProfile(quizState.answers);
     
+    // Get completion tracking data
+    const completionData = getCompletionData();
+    
     // Save to database
     try {
-      const { error } = await supabase
+      const { data: quizData, error } = await supabase
         .from('quiz_manifestation')
         .insert({
           email,
@@ -82,8 +89,23 @@ export const useQuizLogic = () => {
           manifestation_frequency: quizState.answers.manifestation_frequency,
           main_block: quizState.answers.main_block,
           readiness_score: profile.details ? 75 : 50, // Simple scoring
-          manifestation_profile: profile.title
-        });
+          manifestation_profile: profile.title,
+          // Tracking data
+          utm_source: completionData.utm_source,
+          utm_medium: completionData.utm_medium,
+          utm_campaign: completionData.utm_campaign,
+          utm_term: completionData.utm_term,
+          utm_content: completionData.utm_content,
+          user_agent: completionData.user_agent,
+          device_type: completionData.device_type,
+          referrer: completionData.referrer,
+          facebook_pixel_id: completionData.facebook_pixel_id,
+          bemob_click_id: completionData.bemob_click_id,
+          quiz_started_at: completionData.quiz_started_at,
+          quiz_completed_at: completionData.quiz_completed_at
+        })
+        .select()
+        .single();
 
       if (error) {
         console.error('Error saving quiz result:', error);
@@ -93,6 +115,11 @@ export const useQuizLogic = () => {
           variant: "destructive"
         });
         return;
+      }
+
+      // Save detailed answers
+      if (quizData?.id) {
+        await saveQuizAnswers(quizData.id, quizState.answers);
       }
 
       toast({

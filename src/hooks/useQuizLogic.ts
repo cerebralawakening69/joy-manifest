@@ -18,6 +18,8 @@ export const useQuizLogic = () => {
   const [showRevelation, setShowRevelation] = useState(false);
   const [showPattern, setShowPattern] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<QuizAnswer | null>(null);
+  const [soundTrigger, setSoundTrigger] = useState<string | null>(null);
+  const [currentAchievement, setCurrentAchievement] = useState<any>(null);
 
   const startQuiz = () => {
     setQuizState(prev => ({ ...prev, currentScreen: 1 }));
@@ -29,18 +31,27 @@ export const useQuizLogic = () => {
       answers: { ...prev.answers, [questionId]: answer.value }
     }));
     setSelectedAnswer(answer);
+    setSoundTrigger("answer_select");
     
     // Show revelation for first question
     if (questionId === "primary_desire") {
-      setShowRevelation(true);
+      setTimeout(() => {
+        setSoundTrigger("revelation");
+        setShowRevelation(true);
+      }, 1000);
     }
     // Show pattern recognition for second question  
     else if (questionId === "manifestation_frequency") {
-      setShowPattern(true);
+      setTimeout(() => {
+        setSoundTrigger("pattern_detected");
+        setShowPattern(true);
+      }, 1000);
     }
     // Go to email capture for third question
     else if (questionId === "main_block") {
-      setQuizState(prev => ({ ...prev, currentScreen: 4 }));
+      setTimeout(() => {
+        setQuizState(prev => ({ ...prev, currentScreen: 4 }));
+      }, 1000);
     }
   };
 
@@ -89,12 +100,17 @@ export const useQuizLogic = () => {
         description: "Your manifestation profile has been revealed!"
       });
       
-      setQuizState(prev => ({ 
-        ...prev, 
-        currentScreen: 5,
-        manifestationProfile: profile.title,
-        readinessScore: 75
-      }));
+      setSoundTrigger("email_success");
+      
+      setTimeout(() => {
+        setSoundTrigger("final_reveal");
+        setQuizState(prev => ({ 
+          ...prev, 
+          currentScreen: 5,
+          manifestationProfile: profile.title,
+          readinessScore: 75
+        }));
+      }, 1000);
     } catch (error) {
       console.error('Unexpected error:', error);
       toast({
@@ -130,11 +146,26 @@ export const useQuizLogic = () => {
     window.open('https://example.com/manifestation-method', '_blank');
   };
 
+  const handleAchievementUnlock = (achievement: any) => {
+    setCurrentAchievement(achievement);
+    setSoundTrigger("achievement");
+  };
+
+  const closeAchievement = () => {
+    setCurrentAchievement(null);
+  };
+
+  const clearSoundTrigger = () => {
+    setSoundTrigger(null);
+  };
+
   return {
     quizState,
     showRevelation,
     showPattern,
     selectedAnswer,
+    soundTrigger,
+    currentAchievement,
     startQuiz,
     handleAnswer,
     continueFromRevelation,
@@ -144,6 +175,9 @@ export const useQuizLogic = () => {
     getRevelationText,
     getPatternDescription,
     getFinalProfile,
-    handleContinueToVSL
+    handleContinueToVSL,
+    handleAchievementUnlock,
+    closeAchievement,
+    clearSoundTrigger
   };
 };

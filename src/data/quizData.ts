@@ -3,32 +3,32 @@ import { QuizQuestion, ManifestationProfile } from "@/types/quiz";
 export const quizQuestions: QuizQuestion[] = [
   {
     id: "primary_desire",
-    question: "🚨 VERDADE CHOCANTE: 99% das pessoas NÃO sabem qual é o seu MAIOR BLOQUEIO energético... Qual dessas áreas da sua vida você mais DESEJA transformar AGORA?",
+    question: "🚨 SHOCKING TRUTH: 99% of people DON'T know their BIGGEST energetic blockage... Which area of your life do you MOST desire to transform RIGHT NOW?",
     answers: [
-      { id: "money", text: "💰 Dinheiro abundante fluindo naturalmente", emoji: "💰", value: "money" },
-      { id: "love", text: "❤️ Relacionamento dos sonhos magnetizando", emoji: "❤️", value: "love" },
-      { id: "health", text: "🌟 Saúde vibrante e energia ilimitada", emoji: "🌟", value: "health" },
-      { id: "purpose", text: "🎯 Propósito de vida cristalino e poderoso", emoji: "🎯", value: "purpose" }
+      { id: "money", text: "💰 Abundant money flowing naturally", emoji: "💰", value: "money" },
+      { id: "love", text: "❤️ Dream relationship magnetizing", emoji: "❤️", value: "love" },
+      { id: "health", text: "🌟 Vibrant health & unlimited energy", emoji: "🌟", value: "health" },
+      { id: "purpose", text: "🎯 Crystal-clear life purpose & power", emoji: "🎯", value: "purpose" }
     ]
   },
   {
     id: "manifestation_frequency",
-    question: "⚡ REVELAÇÃO: Existe uma FREQUÊNCIA específica que ativa sua glândula pineal... Com que frequência você sente que está 'conectado' com seu poder interior?",
+    question: "⚡ REVELATION: There's a specific FREQUENCY that activates your pineal gland... How often do you feel 'connected' to your inner power?",
     answers: [
-      { id: "daily", text: "🔄 Todos os dias (energia alta)", emoji: "🔄", value: "daily" },
-      { id: "weekly", text: "📅 Algumas vezes por semana", emoji: "📅", value: "weekly" },
-      { id: "rarely", text: "⚡ Raramente (mas quando acontece é INTENSO)", emoji: "⚡", value: "rarely" },
-      { id: "never", text: "🚫 Quase nunca... sinto bloqueado", emoji: "🚫", value: "never" }
+      { id: "daily", text: "🔄 Every day (high energy)", emoji: "🔄", value: "daily" },
+      { id: "weekly", text: "📅 A few times per week", emoji: "📅", value: "weekly" },
+      { id: "rarely", text: "⚡ Rarely (but when it happens it's INTENSE)", emoji: "⚡", value: "rarely" },
+      { id: "never", text: "🚫 Almost never... I feel blocked", emoji: "🚫", value: "never" }
     ]
   },
   {
     id: "main_block",
-    question: "🔥 ÚLTIMO TESTE: Cientistas descobriram que 1 SUBSTÂNCIA está calcificando sua glândula pineal e BLOQUEANDO 90% do seu potencial... O que você sente que mais te IMPEDE de manifestar?",
+    question: "🔥 FINAL TEST: Scientists discovered that 1 SUBSTANCE is calcifying your pineal gland and BLOCKING 90% of your potential... What do you feel PREVENTS you most from manifesting?",
     answers: [
-      { id: "beliefs", text: "🧠 Crenças limitantes profundas", emoji: "🧠", value: "beliefs" },
-      { id: "knowledge", text: "📚 Falta do método correto", emoji: "📚", value: "knowledge" },
-      { id: "fear", text: "😨 Medo do próprio poder", emoji: "😨", value: "fear" },
-      { id: "toxins", text: "☠️ Toxinas bloqueando minha pineal", emoji: "☠️", value: "toxins" }
+      { id: "beliefs", text: "🧠 Deep limiting beliefs", emoji: "🧠", value: "beliefs" },
+      { id: "knowledge", text: "📚 Lack of the right method", emoji: "📚", value: "knowledge" },
+      { id: "fear", text: "😨 Fear of my own power", emoji: "😨", value: "fear" },
+      { id: "toxins", text: "☠️ Toxins blocking my pineal", emoji: "☠️", value: "toxins" }
     ]
   }
 ];
@@ -36,19 +36,19 @@ export const quizQuestions: QuizQuestion[] = [
 export const revelationTexts: Record<string, (value: string) => string> = {
   primary_desire: (value: string) => {
     const texts = {
-      money: "💰 INTERESSANTE... Você escolheu DINHEIRO! Isso revela que sua pineal está EXATAMENTE na frequência da abundância... MAS há algo BLOQUEANDO...",
-      love: "❤️ FASCINANTE... Você escolheu AMOR! Sua energia do coração está ATIVA, mas sua pineal precisa de LIMPEZA para magnetizar...",
-      health: "🌟 INCRÍVEL... Você escolheu SAÚDE! Sua intuição está te guiando para o que mais importa... sua pineal SABE o segredo...",
-      purpose: "🎯 PODEROSO... Você escolheu PROPÓSITO! Sua alma está chamando... mas calcificações estão SILENCIANDO sua voz interior..."
+      money: "💰 INTERESTING... You chose MONEY! This reveals your pineal is EXACTLY on the abundance frequency... BUT something is BLOCKING it...",
+      love: "❤️ FASCINATING... You chose LOVE! Your heart energy is ACTIVE, but your pineal needs CLEANSING to magnetize...",
+      health: "🌟 INCREDIBLE... You chose HEALTH! Your intuition is guiding you to what matters most... your pineal KNOWS the secret...",
+      purpose: "🎯 POWERFUL... You chose PURPOSE! Your soul is calling... but calcifications are SILENCING your inner voice..."
     };
     return texts[value as keyof typeof texts] || texts.money;
   },
   manifestation_frequency: (value: string) => {
     const texts = {
-      daily: "🔄 IMPRESSIONANTE! Energia diária significa que sua pineal está QUASE desbloqueada... falta apenas 1 PASSO...",
-      weekly: "📅 REVELADOR! Suas oscilações mostram que você TEM o poder... mas algo está INTERFERINDO na conexão...",
-      rarely: "⚡ CHOCANTE! Esses momentos intensos provam que sua pineal está FUNCIONANDO... mas está 90% BLOQUEADA...",
-      never: "🚫 CRUCIAL! Sentir-se bloqueado é o PRIMEIRO sinal de calcificação severa... mas isso TEM solução..."
+      daily: "🔄 IMPRESSIVE! Daily energy means your pineal is ALMOST unblocked... just 1 STEP missing...",
+      weekly: "📅 REVEALING! Your fluctuations show you HAVE the power... but something is INTERFERING with the connection...",
+      rarely: "⚡ SHOCKING! These intense moments prove your pineal is WORKING... but it's 90% BLOCKED...",
+      never: "🚫 CRUCIAL! Feeling blocked is the FIRST sign of severe calcification... but this HAS a solution..."
     };
     return texts[value as keyof typeof texts] || texts.daily;
   }

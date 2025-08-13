@@ -5,6 +5,9 @@ import { QuizRevelationScreen } from "@/components/quiz/QuizRevelationScreen";
 import { QuizPatternScreen } from "@/components/quiz/QuizPatternScreen";
 import { QuizEmailScreen } from "@/components/quiz/QuizEmailScreen";
 import { QuizResultScreen } from "@/components/quiz/QuizResultScreen";
+import { GamificationElements } from "@/components/quiz/GamificationElements";
+import { AchievementPopup } from "@/components/quiz/AchievementPopup";
+import { SoundEffects } from "@/components/quiz/SoundEffects";
 
 const ManifestationQuiz = () => {
   const {
@@ -12,6 +15,8 @@ const ManifestationQuiz = () => {
     showRevelation,
     showPattern,
     selectedAnswer,
+    soundTrigger,
+    currentAchievement,
     startQuiz,
     handleAnswer,
     continueFromRevelation,
@@ -21,72 +26,88 @@ const ManifestationQuiz = () => {
     getRevelationText,
     getPatternDescription,
     getFinalProfile,
-    handleContinueToVSL
+    handleContinueToVSL,
+    handleAchievementUnlock,
+    closeAchievement,
+    clearSoundTrigger
   } = useQuizLogic();
 
-  // Hook Screen
-  if (quizState.currentScreen === 0) {
-    return <QuizHookScreen onStart={startQuiz} />;
-  }
-
-  // Revelation Screen
-  if (showRevelation && selectedAnswer) {
-    return (
-      <QuizRevelationScreen
-        selectedAnswer={selectedAnswer}
-        revelationText={getRevelationText()}
-        onContinue={continueFromRevelation}
-        currentScreen={1.5}
-      />
-    );
-  }
-
-  // Pattern Recognition Screen
-  if (showPattern) {
-    return (
-      <QuizPatternScreen
-        pattern={getPatternDescription()}
-        onContinue={continueFromPattern}
-        currentScreen={2.5}
-      />
-    );
-  }
-
-  // Question Screens
-  if (quizState.currentScreen >= 1 && quizState.currentScreen <= 3) {
-    const question = getCurrentQuestion();
-    if (!question) return null;
-
-    return (
-      <QuizQuestionScreen
-        question={question}
+  return (
+    <div className="relative">
+      {/* Gamification Elements */}
+      <GamificationElements 
         currentScreen={quizState.currentScreen}
-        onAnswer={(answer) => handleAnswer(question.id, answer)}
+        answers={quizState.answers}
+        onAchievementUnlock={handleAchievementUnlock}
       />
-    );
-  }
-
-  // Email Capture Screen
-  if (quizState.currentScreen === 4) {
-    return (
-      <QuizEmailScreen
-        onSubmit={submitEmailAndName}
-        currentScreen={quizState.currentScreen}
+      
+      {/* Sound Effects */}
+      <SoundEffects 
+        trigger={soundTrigger}
+        onComplete={clearSoundTrigger}
       />
-    );
-  }
-
-  // Result Screen
-  if (quizState.currentScreen === 5) {
-    return (
-      <QuizResultScreen
-        profile={getFinalProfile()}
-        onContinue={handleContinueToVSL}
+      
+      {/* Achievement Popup */}
+      <AchievementPopup 
+        achievement={currentAchievement}
+        onClose={closeAchievement}
       />
-    );
-  }
 
-  return null;
+      {/* Hook Screen */}
+      {quizState.currentScreen === 0 && (
+        <QuizHookScreen onStart={startQuiz} />
+      )}
+
+      {/* Revelation Screen */}
+      {showRevelation && selectedAnswer && (
+        <QuizRevelationScreen
+          selectedAnswer={selectedAnswer}
+          revelationText={getRevelationText()}
+          onContinue={continueFromRevelation}
+          currentScreen={1.5}
+        />
+      )}
+
+      {/* Pattern Recognition Screen */}
+      {showPattern && (
+        <QuizPatternScreen
+          pattern={getPatternDescription()}
+          onContinue={continueFromPattern}
+          currentScreen={2.5}
+        />
+      )}
+
+      {/* Question Screens */}
+      {quizState.currentScreen >= 1 && quizState.currentScreen <= 3 && (() => {
+        const question = getCurrentQuestion();
+        if (!question) return null;
+
+        return (
+          <QuizQuestionScreen
+            question={question}
+            currentScreen={quizState.currentScreen}
+            onAnswer={(answer) => handleAnswer(question.id, answer)}
+          />
+        );
+      })()}
+
+      {/* Email Capture Screen */}
+      {quizState.currentScreen === 4 && (
+        <QuizEmailScreen
+          onSubmit={submitEmailAndName}
+          currentScreen={quizState.currentScreen}
+        />
+      )}
+
+      {/* Result Screen */}
+      {quizState.currentScreen === 5 && (
+        <QuizResultScreen
+          profile={getFinalProfile()}
+          onContinue={handleContinueToVSL}
+        />
+      )}
+    </div>
+  );
 };
 
 export default ManifestationQuiz;

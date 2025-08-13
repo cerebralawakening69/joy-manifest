@@ -19,7 +19,7 @@ export const useQuizLogic = () => {
   const [showPattern, setShowPattern] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<QuizAnswer | null>(null);
   const [soundTrigger, setSoundTrigger] = useState<string | null>(null);
-  const [currentAchievement, setCurrentAchievement] = useState<any>(null);
+  const [currentDiscovery, setCurrentDiscovery] = useState<any>(null);
 
   const startQuiz = () => {
     setQuizState(prev => ({ ...prev, currentScreen: 1 }));
@@ -146,13 +146,13 @@ export const useQuizLogic = () => {
     window.open('https://pxt.pinealxt.com/ds/presentation/index.php#aff=awakeningprotocol', '_blank');
   };
 
-  const handleAchievementUnlock = (achievement: any) => {
-    setCurrentAchievement(achievement);
+  const handleDiscoveryUnlock = (discovery: any) => {
+    setCurrentDiscovery(discovery);
     setSoundTrigger("achievement");
   };
 
-  const closeAchievement = () => {
-    setCurrentAchievement(null);
+  const closeDiscovery = () => {
+    setCurrentDiscovery(null);
   };
 
   const clearSoundTrigger = () => {
@@ -165,7 +165,7 @@ export const useQuizLogic = () => {
     showPattern,
     selectedAnswer,
     soundTrigger,
-    currentAchievement,
+    currentDiscovery,
     startQuiz,
     handleAnswer,
     continueFromRevelation,
@@ -176,8 +176,8 @@ export const useQuizLogic = () => {
     getPatternDescription,
     getFinalProfile,
     handleContinueToVSL,
-    handleAchievementUnlock,
-    closeAchievement,
+    handleDiscoveryUnlock,
+    closeDiscovery,
     clearSoundTrigger
   };
 };

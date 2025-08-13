@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { SparkleEffect } from "./SparkleEffect";
 
-interface Achievement {
+interface Discovery {
   id: string;
   title: string;
   description: string;
@@ -14,165 +14,174 @@ interface Achievement {
 interface GamificationElementsProps {
   currentScreen: number;
   answers: Record<string, string>;
-  onAchievementUnlock?: (achievement: Achievement) => void;
+  onDiscoveryUnlock?: (discovery: Discovery) => void;
 }
 
 export const GamificationElements = ({ 
   currentScreen, 
   answers, 
-  onAchievementUnlock 
+  onDiscoveryUnlock 
 }: GamificationElementsProps) => {
-  const [points, setPoints] = useState(0);
-  const [achievements, setAchievements] = useState<Achievement[]>([
+  const [consciousnessLevel, setConsciousnessLevel] = useState(0);
+  const [discoveries, setDiscoveries] = useState<Discovery[]>([
     {
-      id: "first_choice",
-      title: "AWAKENING BEGINS",
-      description: "Made your first conscious choice",
+      id: "desire_revealed",
+      title: "DESIRE REVEALED",
+      description: "Your deepest manifestation desire uncovered",
+      emoji: "🔮",
+      unlocked: false
+    },
+    {
+      id: "frequency_detected",
+      title: "FREQUENCY DETECTED", 
+      description: "Your unique pineal frequency discovered",
       emoji: "⚡",
       unlocked: false
     },
     {
-      id: "pattern_detected",
-      title: "PATTERN MASTER",
-      description: "Revealed your unique frequency pattern",
-      emoji: "🌀",
+      id: "blockage_identified",
+      title: "BLOCKAGE IDENTIFIED",
+      description: "Your manifestation block identified", 
+      emoji: "🧠",
       unlocked: false
     },
     {
-      id: "truth_seeker",
-      title: "TRUTH SEEKER",
-      description: "Discovered your primary manifestation block",
-      emoji: "🔍",
+      id: "profile_unlocked",
+      title: "PROFILE UNLOCKED",
+      description: "Complete manifestation profile revealed",
+      emoji: "👁️",
       unlocked: false
     },
     {
-      id: "email_warrior",
-      title: "COMMITMENT WARRIOR",
-      description: "Committed to your transformation journey",
-      emoji: "⚔️",
-      unlocked: false
-    },
-    {
-      id: "manifestor_revealed",
-      title: "MANIFESTOR REVEALED",
-      description: "Unlocked your complete manifestation profile",
-      emoji: "👑",
+      id: "gift_earned",
+      title: "$18 GIFT EARNED",
+      description: "Mysterious gift unlocked for your journey",
+      emoji: "🎁",
       unlocked: false
     }
   ]);
 
-  const [combo, setCombo] = useState(0);
-  const [showCombo, setShowCombo] = useState(false);
+  const [giftProximity, setGiftProximity] = useState(0);
+  const [showPulse, setShowPulse] = useState(false);
 
   useEffect(() => {
-    const newAchievements = [...achievements];
-    let newPoints = points;
-    let comboBonus = 0;
+    const newDiscoveries = [...discoveries];
+    let newLevel = consciousnessLevel;
+    let newProximity = giftProximity;
 
-    // Check for new achievements
-    if (Object.keys(answers).length >= 1 && !achievements[0].unlocked) {
-      newAchievements[0].unlocked = true;
-      newPoints += 100;
-      comboBonus += 1;
-      onAchievementUnlock?.(newAchievements[0]);
+    // Check for new discoveries
+    if (Object.keys(answers).length >= 1 && !discoveries[0].unlocked) {
+      newDiscoveries[0].unlocked = true;
+      newLevel = 25;
+      newProximity = 20;
+      onDiscoveryUnlock?.(newDiscoveries[0]);
     }
 
-    if (Object.keys(answers).length >= 2 && !achievements[1].unlocked) {
-      newAchievements[1].unlocked = true;
-      newPoints += 200;
-      comboBonus += 1;
-      onAchievementUnlock?.(newAchievements[1]);
+    if (Object.keys(answers).length >= 2 && !discoveries[1].unlocked) {
+      newDiscoveries[1].unlocked = true;
+      newLevel = 50;
+      newProximity = 40;
+      onDiscoveryUnlock?.(newDiscoveries[1]);
     }
 
-    if (Object.keys(answers).length >= 3 && !achievements[2].unlocked) {
-      newAchievements[2].unlocked = true;
-      newPoints += 300;
-      comboBonus += 1;
-      onAchievementUnlock?.(newAchievements[2]);
+    if (Object.keys(answers).length >= 3 && !discoveries[2].unlocked) {
+      newDiscoveries[2].unlocked = true;
+      newLevel = 75;
+      newProximity = 60;
+      onDiscoveryUnlock?.(newDiscoveries[2]);
     }
 
-    if (currentScreen === 4 && !achievements[3].unlocked) {
-      newAchievements[3].unlocked = true;
-      newPoints += 500;
-      comboBonus += 1;
-      onAchievementUnlock?.(newAchievements[3]);
+    if (currentScreen === 4 && !discoveries[3].unlocked) {
+      newDiscoveries[3].unlocked = true;
+      newLevel = 90;
+      newProximity = 80;
+      onDiscoveryUnlock?.(newDiscoveries[3]);
     }
 
-    if (currentScreen === 5 && !achievements[4].unlocked) {
-      newAchievements[4].unlocked = true;
-      newPoints += 1000;
-      comboBonus += 1;
-      onAchievementUnlock?.(newAchievements[4]);
+    if (currentScreen === 5 && !discoveries[4].unlocked) {
+      newDiscoveries[4].unlocked = true;
+      newLevel = 100;
+      newProximity = 100;
+      setShowPulse(true);
+      onDiscoveryUnlock?.(newDiscoveries[4]);
     }
 
-    // Combo system
-    if (comboBonus > 0) {
-      const newCombo = combo + comboBonus;
-      setCombo(newCombo);
-      setShowCombo(true);
-      
-      // Combo bonus points
-      if (newCombo >= 3) newPoints += newCombo * 50;
-      
-      setTimeout(() => setShowCombo(false), 3000);
-    }
-
-    setAchievements(newAchievements);
-    setPoints(newPoints);
+    setDiscoveries(newDiscoveries);
+    setConsciousnessLevel(newLevel);
+    setGiftProximity(newProximity);
   }, [currentScreen, answers]);
 
-  const unlockedAchievements = achievements.filter(a => a.unlocked);
-  const completionPercentage = (unlockedAchievements.length / achievements.length) * 100;
+  const unlockedDiscoveries = discoveries.filter(d => d.unlocked);
 
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
-      {/* Points Display */}
-      <Card className="p-3 bg-gradient-to-r from-golden/20 to-energy-pink/20 border-golden animate-pulse-glow">
-        <div className="flex items-center space-x-2">
-          <span className="text-lg font-bold text-golden">⚡</span>
-          <div>
-            <div className="text-sm font-bold text-golden">{points.toLocaleString()} POWER</div>
-            <div className="text-xs text-muted-foreground">{Math.round(completionPercentage)}% Unlocked</div>
+    <div className="fixed top-4 right-4 z-50 space-y-3">
+      {/* Consciousness Level */}
+      <Card className="p-4 bg-gradient-to-br from-primary/20 to-golden/20 border-primary animate-glow">
+        <div className="text-center">
+          <div className="text-sm font-bold text-golden mb-1">CONSCIOUSNESS</div>
+          <div className="text-2xl font-bold text-primary">{consciousnessLevel}%</div>
+          <div className="text-xs text-muted-foreground">AWAKENED</div>
+          
+          {/* Consciousness bar */}
+          <div className="w-full bg-muted rounded-full h-2 mt-2">
+            <div 
+              className="bg-gradient-to-r from-primary to-golden h-2 rounded-full transition-all duration-1000 animate-pulse-glow"
+              style={{ width: `${consciousnessLevel}%` }}
+            />
           </div>
         </div>
       </Card>
 
-      {/* Combo Display */}
-      {showCombo && combo > 1 && (
-        <Card className="p-2 bg-gradient-to-r from-energy-pink to-primary border-energy-pink animate-bounce">
+      {/* Gift Proximity */}
+      {giftProximity > 0 && (
+        <Card className={`p-3 bg-gradient-to-br from-energy-pink/20 to-golden/20 border-energy-pink ${
+          showPulse ? 'animate-bounce' : 'animate-glow'
+        }`}>
           <div className="text-center">
-            <div className="text-lg font-bold text-white">COMBO x{combo}!</div>
-            <div className="text-xs text-white/80">+{combo * 50} Bonus Points!</div>
+            <div className="text-lg mb-1">🎁</div>
+            <div className="text-sm font-bold text-energy-pink">$18 GIFT</div>
+            <div className="text-xs text-muted-foreground">{giftProximity}% Unlocked</div>
+            
+            {giftProximity === 100 && (
+              <div className="text-xs text-golden font-bold mt-1 animate-pulse">
+                ✨ EARNED! ✨
+              </div>
+            )}
           </div>
-          <SparkleEffect />
+          {showPulse && <SparkleEffect />}
         </Card>
       )}
 
-      {/* Recent Achievement */}
-      {unlockedAchievements.length > 0 && (
-        <Card className="p-2 bg-gradient-to-r from-primary/20 to-golden/20 border-primary max-w-[200px]">
+      {/* Latest Discovery */}
+      {unlockedDiscoveries.length > 0 && (
+        <Card className="p-3 bg-gradient-to-br from-golden/10 to-primary/10 border-golden max-w-[220px]">
           <div className="text-center">
-            <div className="text-lg">{unlockedAchievements[unlockedAchievements.length - 1].emoji}</div>
-            <div className="text-xs font-bold text-primary">
-              {unlockedAchievements[unlockedAchievements.length - 1].title}
+            <div className="text-2xl mb-1">
+              {unlockedDiscoveries[unlockedDiscoveries.length - 1].emoji}
+            </div>
+            <div className="text-xs font-bold text-golden mb-1">
+              JUST DISCOVERED
+            </div>
+            <div className="text-xs text-primary font-semibold">
+              {unlockedDiscoveries[unlockedDiscoveries.length - 1].title}
             </div>
           </div>
         </Card>
       )}
 
-      {/* Achievement Badges */}
-      <div className="flex flex-wrap gap-1 max-w-[200px]">
-        {achievements.map((achievement) => (
+      {/* Discovery Progress */}
+      <div className="flex flex-col gap-1">
+        {discoveries.map((discovery, index) => (
           <Badge
-            key={achievement.id}
-            variant={achievement.unlocked ? "default" : "secondary"}
-            className={`text-xs ${
-              achievement.unlocked 
-                ? "bg-golden text-primary-foreground animate-glow" 
-                : "opacity-30"
+            key={discovery.id}
+            variant={discovery.unlocked ? "default" : "secondary"}
+            className={`text-xs px-2 py-1 ${
+              discovery.unlocked 
+                ? "bg-gradient-to-r from-golden to-energy-pink text-primary-foreground animate-glow border-golden" 
+                : "opacity-20 bg-muted"
             }`}
           >
-            {achievement.emoji}
+            {discovery.emoji} {discovery.unlocked ? "✓" : "○"}
           </Badge>
         ))}
       </div>

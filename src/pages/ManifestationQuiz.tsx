@@ -16,7 +16,7 @@ const ManifestationQuiz = () => {
     showPattern,
     selectedAnswer,
     soundTrigger,
-    currentAchievement,
+    currentDiscovery,
     startQuiz,
     handleAnswer,
     continueFromRevelation,
@@ -27,8 +27,8 @@ const ManifestationQuiz = () => {
     getPatternDescription,
     getFinalProfile,
     handleContinueToVSL,
-    handleAchievementUnlock,
-    closeAchievement,
+    handleDiscoveryUnlock,
+    closeDiscovery,
     clearSoundTrigger
   } = useQuizLogic();
 
@@ -38,7 +38,7 @@ const ManifestationQuiz = () => {
       <GamificationElements 
         currentScreen={quizState.currentScreen}
         answers={quizState.answers}
-        onAchievementUnlock={handleAchievementUnlock}
+        onDiscoveryUnlock={handleDiscoveryUnlock}
       />
       
       {/* Sound Effects */}
@@ -47,10 +47,10 @@ const ManifestationQuiz = () => {
         onComplete={clearSoundTrigger}
       />
       
-      {/* Achievement Popup */}
+      {/* Discovery Popup */}
       <AchievementPopup 
-        achievement={currentAchievement}
-        onClose={closeAchievement}
+        discovery={currentDiscovery}
+        onClose={closeDiscovery}
       />
 
       {/* Hook Screen */}

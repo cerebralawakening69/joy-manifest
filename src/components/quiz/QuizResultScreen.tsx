@@ -24,122 +24,147 @@ export const QuizResultScreen = ({ profile, onContinue }: QuizResultScreenProps)
               {profile.emoji}
             </div>
             <h2 className="text-2xl md:text-3xl font-bold mb-4 text-primary">
-              🔥 SEU PERFIL REVELADO: {profile.title}!
+              🔥 YOUR PROFILE REVEALED: {profile.title}!
             </h2>
             <div className="w-24 h-1 bg-gradient-primary mx-auto rounded-full"></div>
           </div>
 
-          {/* Profile Stats */}
+          {/* Gift Mystery Box */}
+          <div className="bg-gradient-to-r from-golden/20 to-primary/20 p-6 rounded-xl border-2 border-golden/30 mb-8">
+            <div className="text-center">
+              <div className="text-4xl mb-3">🎁</div>
+              <h3 className="text-xl font-bold text-golden mb-2">
+                EXCLUSIVE $18 GIFT UNLOCKED!
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Your complete diagnosis + special bonus will arrive in your email within the next few minutes...
+              </p>
+            </div>
+          </div>
+
+          {/* Profile Stats - Teaser Only */}
           <div className="grid gap-3 mb-8">
             <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl border border-primary/10">
-              <span className="font-medium text-muted-foreground">Seu Foco Principal:</span>
+              <span className="font-medium text-muted-foreground">Primary Focus:</span>
               <span className="text-golden font-bold">{profile.details.desire}</span>
             </div>
             <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl border border-primary/10">
-              <span className="font-medium text-muted-foreground">Sua Frequência:</span>
+              <span className="font-medium text-muted-foreground">Energy Frequency:</span>
               <span className="text-purple-magic font-bold">{profile.details.frequency}</span>
             </div>
             <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl border border-primary/10">
-              <span className="font-medium text-muted-foreground">Seu Principal Bloqueio:</span>
+              <span className="font-medium text-muted-foreground">Main Block:</span>
               <span className="text-energy-pink font-bold">{profile.details.mainBlock}</span>
             </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-4 rounded-xl border border-primary/20 mb-8">
+            <p className="text-center text-sm font-medium text-muted-foreground">
+              📧 <span className="text-primary font-bold">Complete detailed analysis</span> with personalized action steps being sent to your email now...
+            </p>
           </div>
 
           {/* TSL - Text Sales Letter */}
           <div className="space-y-6 text-left">
             <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-6 rounded-xl border-l-4 border-primary">
               <h3 className="text-xl font-bold mb-3 text-primary">
-                🚨 DESCOBERTA CIENTÍFICA CHOCANTE SOBRE SUA GLÂNDULA PINEAL
+                🚨 SHOCKING SCIENTIFIC DISCOVERY ABOUT YOUR PINEAL GLAND
               </h3>
               <p className="text-base leading-relaxed text-foreground">
-                Parabéns! Seu perfil <span className="font-bold text-primary">{profile.title}</span> revela que você possui uma conexão natural com frequências superiores de manifestação.
+                Congratulations! Your <span className="font-bold text-primary">{profile.title}</span> profile reveals you have a natural connection to higher manifestation frequencies.
               </p>
             </div>
 
             <div className="space-y-4">
               <p className="text-base leading-relaxed">
-                <span className="font-bold text-destructive">MAS AQUI ESTÁ O PROBLEMA:</span> Recentes estudos da Universidade de Harvard descobriram que <span className="font-bold text-primary">93% das pessoas têm a glândula pineal CALCIFICADA</span> por uma substância encontrada na água, pasta de dente e alimentos processados.
+                <span className="font-bold text-destructive">BUT HERE'S THE PROBLEM:</span> Recent Harvard University studies discovered that <span className="font-bold text-primary">93% of people have a CALCIFIED pineal gland</span> caused by a substance found in water, toothpaste, and processed foods.
               </p>
 
               <p className="text-base leading-relaxed">
-                Essa calcificação está literalmente <span className="font-bold text-destructive">BLOQUEANDO seu terceiro olho</span> e impedindo que você acesse:
+                This calcification is literally <span className="font-bold text-destructive">BLOCKING your third eye</span> and preventing you from accessing:
               </p>
 
               <div className="bg-muted/30 p-5 rounded-xl">
                 <ul className="space-y-2">
                   <li className="flex items-center gap-3">
                     <span className="text-golden text-xl">✨</span>
-                    <span>Manifestações instantâneas e poderosas</span>
+                    <span>Instant and powerful manifestations</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <span className="text-purple-magic text-xl">🧠</span>
-                    <span>Intuição aguçada para oportunidades de dinheiro</span>
+                    <span>Sharp intuition for money opportunities</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <span className="text-energy-pink text-xl">⚡</span>
-                    <span>Conexão direta com o campo quântico</span>
+                    <span>Direct connection to the quantum field</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <span className="text-primary text-xl">🎯</span>
-                    <span>Visões claras do seu futuro abundante</span>
+                    <span>Clear visions of your abundant future</span>
                   </li>
                 </ul>
               </div>
 
               <p className="text-base leading-relaxed">
-                A boa notícia? Um neurocientista descobriu um <span className="font-bold text-primary">protocolo natural de 30 segundos</span> que pode descalcificar sua pineal em apenas 21 dias.
+                The good news? A neuroscientist discovered a <span className="font-bold text-primary">natural 30-second protocol</span> that can decalcify your pineal in just 21 days.
               </p>
 
               <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-5 rounded-xl border border-primary/20">
                 <p className="text-base leading-relaxed font-medium">
-                  ⚠️ <span className="font-bold text-destructive">AVISO IMPORTANTE:</span> Este método está sendo SUPRIMIDO pela indústria farmacêutica porque pessoas com a pineal ativada manifestam abundância sem precisar de medicamentos ou terapias caras.
+                  ⚠️ <span className="font-bold text-destructive">IMPORTANT WARNING:</span> This method is being SUPPRESSED by the pharmaceutical industry because people with activated pineals manifest abundance without needing expensive medications or therapies.
                 </p>
               </div>
 
               <p className="text-base leading-relaxed">
-                <span className="font-bold text-primary">Apenas hoje</span>, você pode assistir ao vídeo completo que revela:
+                <span className="font-bold text-primary">Only today</span>, you can watch the complete video that reveals:
               </p>
 
               <div className="bg-muted/30 p-5 rounded-xl">
                 <ul className="space-y-2">
                   <li className="flex items-start gap-3">
                     <span className="text-golden text-lg mt-1">🔬</span>
-                    <span>O componente exato que está calcificando sua pineal (você usa todo dia)</span>
+                    <span>The exact component calcifying your pineal (you use it daily)</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-purple-magic text-lg mt-1">🌿</span>
-                    <span>O protocolo natural de descalcificação de 30 segundos</span>
+                    <span>The natural 30-second decalcification protocol</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-energy-pink text-lg mt-1">⚡</span>
-                    <span>Como ativar frequências específicas para manifestar dinheiro</span>
+                    <span>How to activate specific frequencies to manifest money</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-primary text-lg mt-1">🎯</span>
-                    <span>3 exercícios para sincronizar com o campo quântico da abundância</span>
+                    <span>3 exercises to sync with the quantum field of abundance</span>
                   </li>
                 </ul>
               </div>
 
               <div className="bg-gradient-to-r from-destructive/10 to-destructive/5 p-5 rounded-xl border-l-4 border-destructive">
                 <p className="text-base leading-relaxed font-medium">
-                  <span className="font-bold text-destructive">⏰ ATENÇÃO:</span> Este vídeo será removido em breve devido à pressão de grandes corporações. Não perca esta oportunidade única de descobrir o segredo que pode transformar sua vida financeira para sempre.
+                  <span className="font-bold text-destructive">⏰ ATTENTION:</span> This video will be removed soon due to pressure from large corporations. Don't miss this unique opportunity to discover the secret that can transform your financial life forever.
                 </p>
               </div>
             </div>
 
             <div className="text-center pt-6">
-              <Button 
-                onClick={onContinue}
-                size="lg"
-                className="text-lg px-12 py-6 bg-gradient-primary hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl font-bold text-white animate-pulse-glow"
+              <a 
+                href="https://bit.ly/4gMFKfX"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block"
               >
-                🎥 ASSISTIR VÍDEO REVELAÇÃO AGORA
-                <br />
-                <span className="text-sm opacity-90">(Acesso Liberado por 24h)</span>
-              </Button>
+                <Button 
+                  size="lg"
+                  className="text-lg px-12 py-6 bg-gradient-primary hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl font-bold text-white animate-pulse-glow"
+                >
+                  🎥 WATCH REVELATION VIDEO NOW
+                  <br />
+                  <span className="text-sm opacity-90">(24-Hour Access Granted)</span>
+                </Button>
+              </a>
               <p className="text-sm text-muted-foreground mt-3">
-                ✅ 100% Gratuito • ✅ Baseado em Ciência • ✅ Resultados em 21 Dias
+                ✅ 100% Free • ✅ Science-Based • ✅ Results in 21 Days
               </p>
             </div>
           </div>

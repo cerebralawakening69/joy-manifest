@@ -9,14 +9,14 @@ export const QuizProgressBar = ({ currentScreen, totalScreens }: QuizProgressBar
   const progress = (currentScreen / totalScreens) * 100;
   
   return (
-    <div className="w-full max-w-md mx-auto mb-8">
-      <div className="flex justify-between text-xs text-muted-foreground mb-2">
+    <div className="w-full max-w-md mx-auto mb-6 sm:mb-8">
+      <div className="flex justify-between text-xs sm:text-sm text-muted-foreground mb-2">
         <span>Progress</span>
         <span>{Math.round(progress)}% Complete</span>
       </div>
       <Progress 
         value={progress} 
-        className="h-3 bg-muted border border-border animate-pulse-glow"
+        className="h-2 sm:h-3 bg-muted border border-border animate-pulse-glow"
       />
     </div>
   );

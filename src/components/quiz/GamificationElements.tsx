@@ -48,13 +48,13 @@ export const GamificationElements = ({
   if (giftProgress === 0 || giftProgress === 100) return null;
 
   return (
-    <div className="fixed top-6 right-6 z-40">
-      <Card className="p-3 bg-background/80 backdrop-blur-sm border border-golden/30 shadow-lg">
-        <div className="flex items-center space-x-3">
-          <div className="text-lg">🎁</div>
+    <div className="fixed top-4 right-2 sm:top-6 sm:right-6 z-40">
+      <Card className="p-2 sm:p-3 bg-background/80 backdrop-blur-sm border border-golden/30 shadow-lg max-w-[140px] sm:max-w-none">
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="text-base sm:text-lg">🎁</div>
           <div className="text-right">
             <div className="text-xs text-muted-foreground">Gift Progress</div>
-            <div className="text-sm font-semibold text-golden">{giftProgress}%</div>
+            <div className="text-xs sm:text-sm font-semibold text-golden">{giftProgress}%</div>
           </div>
         </div>
         

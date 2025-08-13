@@ -41,32 +41,32 @@ export const AchievementPopup = ({ discovery, onClose }: DiscoveryPopupProps) =>
       }`}
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}
     >
-      <Card className={`p-8 bg-gradient-to-br from-golden/20 to-energy-pink/20 border-2 border-golden text-center max-w-md transform transition-all duration-500 ${
+      <Card className={`p-4 sm:p-6 md:p-8 bg-gradient-to-br from-golden/20 to-energy-pink/20 border-2 border-golden text-center max-w-sm sm:max-w-md transform transition-all duration-500 ${
         isVisible ? 'scale-100' : 'scale-90'
       }`}>
         <SparkleEffect />
         
         <div className="relative z-10">
-          <div className="text-6xl mb-4 animate-float">
+          <div className="text-4xl sm:text-5xl md:text-6xl mb-3 sm:mb-4 animate-float">
             🎁
           </div>
           
-          <h3 className="text-2xl font-bold text-golden mb-4">
+          <h3 className="text-xl sm:text-2xl font-bold text-golden mb-3 sm:mb-4">
             CONGRATULATIONS!
           </h3>
           
-          <div className="mb-6 p-4 bg-gradient-to-r from-energy-pink/20 to-golden/20 rounded-lg border border-golden">
-            <div className="text-xl font-bold text-energy-pink mb-2">
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gradient-to-r from-energy-pink/20 to-golden/20 rounded-lg border border-golden">
+            <div className="text-lg sm:text-xl font-bold text-energy-pink mb-2">
               $18 MYSTERIOUS GIFT EARNED
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-muted-foreground leading-relaxed">
               Check your email in the next few minutes for your exclusive gift
             </div>
           </div>
           
           <Button 
             onClick={handleClose}
-            className="bg-gradient-to-r from-golden to-energy-pink text-primary-foreground font-bold px-6 py-2"
+            className="bg-gradient-to-r from-golden to-energy-pink text-primary-foreground font-bold px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base w-full sm:w-auto touch-manipulation"
           >
             CONTINUE TO RESULTS →
           </Button>

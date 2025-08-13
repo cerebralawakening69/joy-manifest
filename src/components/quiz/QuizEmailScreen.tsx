@@ -70,8 +70,8 @@ export const QuizEmailScreen = ({ onSubmit, currentScreen }: QuizEmailScreenProp
             
             <Button 
               type="submit"
-              size="lg"
-              className="w-full text-lg sm:text-xl py-4 sm:py-5 animate-pulse-glow bg-golden text-primary-foreground hover:bg-golden/90 touch-manipulation h-14 sm:h-16"
+              size="xl"
+              className="w-full animate-pulse-glow bg-golden text-primary-foreground hover:bg-golden/90"
               disabled={!email || !name}
             >
               CLAIM MY $18 GIFT →

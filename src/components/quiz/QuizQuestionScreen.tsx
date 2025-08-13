@@ -31,12 +31,12 @@ export const QuizQuestionScreen = ({ question, currentScreen, onAnswer }: QuizQu
                 key={answer.id}
                 onClick={() => onAnswer(answer)}
                 variant="outline"
-                size="lg"
-                className="p-4 sm:p-5 md:p-6 text-left justify-start h-auto border-2 hover:border-primary hover:bg-primary/10 transition-all duration-300 transform hover:scale-[1.02] active:scale-95 animate-slide-up touch-manipulation"
+                size="xl"
+                className="p-3 sm:p-4 md:p-6 text-left justify-start h-auto min-h-[64px] sm:min-h-[72px] border-2 hover:border-primary hover:bg-primary/10 transition-all duration-300 transform hover:scale-[1.02] active:scale-95 animate-slide-up w-full"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <span className="text-xl sm:text-2xl mr-3 sm:mr-4 flex-shrink-0">{answer.emoji}</span>
-                <span className="text-sm sm:text-base md:text-lg font-medium leading-relaxed text-left">
+                <span className="text-xl sm:text-2xl mr-3 sm:mr-4 flex-shrink-0 leading-none">{answer.emoji}</span>
+                <span className="text-sm sm:text-base md:text-lg font-medium leading-relaxed text-left flex-1 break-words">
                   {answer.text}
                 </span>
               </Button>

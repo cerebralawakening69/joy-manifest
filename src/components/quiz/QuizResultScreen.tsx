@@ -156,12 +156,17 @@ export const QuizResultScreen = ({ profile, onContinue }: QuizResultScreenProps)
             <div className="text-center pt-6">
               <Button 
                 onClick={onContinue}
-                size="lg"
-                className="text-lg px-12 py-6 bg-gradient-primary hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl font-bold text-white animate-pulse-glow"
+                size="xl"
+                className="bg-gradient-to-r from-golden to-energy-pink text-primary-foreground hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl font-bold animate-pulse-glow text-center w-full max-w-md mx-auto"
               >
-                🎥 WATCH REVELATION VIDEO NOW
-                <br />
-                <span className="text-sm opacity-90">(24-Hour Access Granted)</span>
+                <div className="flex flex-col items-center leading-tight">
+                  <span className="text-lg sm:text-xl font-black">
+                    🎥 WATCH REVELATION VIDEO NOW
+                  </span>
+                  <span className="text-xs sm:text-sm opacity-90 font-normal mt-1">
+                    (24-Hour Access Granted)
+                  </span>
+                </div>
               </Button>
               <p className="text-sm text-muted-foreground mt-3">
                 ✅ 100% Free • ✅ Science-Based • ✅ Results in 21 Days

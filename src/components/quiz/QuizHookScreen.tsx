@@ -36,10 +36,11 @@ export const QuizHookScreen = ({ onStart }: QuizHookScreenProps) => {
         
         <Button 
           onClick={onStart}
-          size="lg"
-          className="text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-6 animate-pulse-glow text-primary-foreground bg-primary hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 mb-6 sm:mb-8 w-full max-w-md mx-auto"
+          size="xl"
+          className="animate-pulse-glow text-primary-foreground bg-primary hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 mb-6 sm:mb-8 w-full max-w-md mx-auto break-words text-center"
         >
-          UNLOCK MY POWER + CLAIM GIFT →
+          <span className="block sm:inline">UNLOCK MY POWER</span>
+          <span className="block sm:inline sm:ml-1">+ CLAIM GIFT →</span>
         </Button>
         
         <div className="text-xs sm:text-sm text-muted-foreground animate-fade-in px-2" style={{ animationDelay: '0.6s' }}>

@@ -18,7 +18,7 @@ export const QuizHookScreen = ({ onStart }: QuizHookScreenProps) => {
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 sm:mb-6 text-golden animate-glow leading-tight">
             🔥 DISCOVER YOUR HIDDEN
           </h1>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-8 text-primary animate-glow leading-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-8 text-primary animate-glow leading-tight bg-transparent">
             MANIFESTATION POWER
           </h1>
         </div>

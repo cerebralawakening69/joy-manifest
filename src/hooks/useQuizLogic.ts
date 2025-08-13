@@ -142,8 +142,8 @@ export const useQuizLogic = () => {
   };
 
   const handleContinueToVSL = () => {
-    // This would typically redirect to a sales page or video
-    window.open('https://example.com/manifestation-method', '_blank');
+    // Redirect to the affiliate sales page
+    window.open('https://pxt.pinealxt.com/ds/presentation/index.php#aff=awakeningprotocol', '_blank');
   };
 
   const handleAchievementUnlock = (achievement: any) => {

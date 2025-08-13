@@ -23,24 +23,22 @@ const getAnswerText = (questionId: string, answerValue: string): string => {
   // Map answer values to readable text
   const answerTexts: Record<string, Record<string, string>> = {
     primary_desire: {
-      abundance: "Abundância Financeira",
-      love: "Relacionamentos e Amor",
-      health: "Saúde e Vitalidade",
-      success: "Sucesso Profissional",
-      spiritual: "Crescimento Espiritual"
+      money: "Financial abundance and true freedom",
+      love: "Find or improve my soulmate connection",
+      health: "Radiant health and limitless energy",
+      purpose: "Discover my life purpose and live with passion"
     },
     manifestation_frequency: {
-      daily: "Todos os dias",
-      weekly: "Algumas vezes por semana",
-      monthly: "Uma vez por mês ou menos",
-      rarely: "Raramente ou nunca"
+      stuck: "I feel trapped in the same patterns",
+      effort: "I work hard but see no real results",
+      direction: "I'm confused about which path to take",
+      doubt: "I fear I'm not capable of achieving my dreams"
     },
     main_block: {
-      doubt: "Dúvidas e ceticismo",
-      patience: "Falta de paciência",
-      focus: "Dificuldade de foco",
-      worthiness: "Sentimentos de não merecimento",
-      technique: "Não sei as técnicas certas"
+      beliefs: "Limiting beliefs about what's possible for me",
+      knowledge: "I don't know the right method or system",
+      fear: "Fear of failure or being judged",
+      energy: "Lack of energy and motivation to persist"
     }
   };
 

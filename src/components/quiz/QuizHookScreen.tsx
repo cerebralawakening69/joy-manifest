@@ -14,14 +14,12 @@ export const QuizHookScreen = ({ onStart }: QuizHookScreenProps) => {
       <div className="relative z-10 text-center max-w-2xl mx-auto animate-fade-in">
         <QuizProgressBar currentScreen={0} totalScreens={5} />
         
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 sm:mb-6 text-golden animate-glow leading-tight">
-            🔥 DISCOVER YOUR HIDDEN
-          </h1>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-8 text-primary animate-glow leading-tight bg-transparent">
-            MANIFESTATION POWER
-          </h1>
-        </div>
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 sm:mb-6 text-golden animate-glow leading-tight">
+          🔥 DISCOVER YOUR HIDDEN
+        </h1>
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-8 text-primary animate-glow leading-tight">
+          MANIFESTATION POWER
+        </h1>
         
         <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-6 sm:mb-8 animate-fade-in px-2" style={{ animationDelay: '0.3s' }}>
           97% of people <span className="text-destructive font-bold">NEVER</span> discover their true power...

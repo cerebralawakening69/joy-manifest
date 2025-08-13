@@ -23,20 +23,27 @@ export const QuizHookScreen = ({ onStart }: QuizHookScreenProps) => {
           </h1>
         </div>
         
-        <p className="text-xl md:text-2xl text-muted-foreground mb-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+        <p className="text-xl md:text-2xl text-muted-foreground mb-8 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           97% of people <span className="text-destructive font-bold">NEVER</span> discover their true power...
         </p>
+        
+        <div className="mb-8 p-4 bg-gradient-to-r from-golden/10 to-energy-pink/10 border border-golden/30 rounded-lg animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <div className="text-lg font-bold text-golden mb-2">🎁 MYSTERIOUS $18 GIFT AWAITS</div>
+          <div className="text-sm text-muted-foreground">
+            Complete your manifestation profile and receive a <span className="text-energy-pink font-semibold">secret $18 gift</span> in your email within minutes
+          </div>
+        </div>
         
         <Button 
           onClick={onStart}
           size="lg"
-          className="text-xl px-12 py-6 animate-pulse-glow text-primary-foreground bg-primary hover:bg-primary/90 transition-all duration-300 transform hover:scale-105"
+          className="text-xl px-12 py-6 animate-pulse-glow text-primary-foreground bg-primary hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 mb-8"
         >
-          UNLOCK MY POWER →
+          UNLOCK MY POWER + CLAIM GIFT →
         </Button>
         
-        <div className="mt-8 text-sm text-muted-foreground animate-fade-in" style={{ animationDelay: '0.6s' }}>
-          🔒 Takes only 2 minutes • 100% Free • Instant Results
+        <div className="text-sm text-muted-foreground animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          🔒 Takes only 2 minutes • 100% Free • Instant Results + $18 Gift
         </div>
       </div>
     </div>

@@ -25,20 +25,23 @@ export const QuizQuestionScreen = ({ question, currentScreen, onAnswer }: QuizQu
             {question.question}
           </h2>
           
-          <div className="grid gap-3 sm:gap-4 md:gap-6">
+          <div className="grid gap-3 sm:gap-4">
             {question.answers.map((answer, index) => (
               <Button
                 key={answer.id}
                 onClick={() => onAnswer(answer)}
                 variant="outline"
-                size="xl"
-                className="p-3 sm:p-4 md:p-6 text-left justify-start h-auto min-h-[64px] sm:min-h-[72px] border-2 hover:border-primary hover:bg-primary/10 transition-all duration-300 transform hover:scale-[1.02] active:scale-95 animate-slide-up w-full"
-                style={{ animationDelay: `${index * 0.1}s` }}
+                className="group relative p-4 sm:p-5 text-left justify-start h-auto min-h-[68px] sm:min-h-[76px] border-2 hover:border-primary hover:bg-primary/10 transition-all duration-200 w-full overflow-hidden"
+                style={{ animationDelay: `${index * 0.1}s`, animation: 'slide-up 0.5s ease-out both' }}
               >
-                <span className="text-xl sm:text-2xl mr-3 sm:mr-4 flex-shrink-0 leading-none">{answer.emoji}</span>
-                <span className="text-sm sm:text-base md:text-lg font-medium leading-relaxed text-left flex-1 break-words">
-                  {answer.text}
-                </span>
+                <div className="flex items-center w-full gap-3 sm:gap-4">
+                  <span className="text-2xl sm:text-3xl flex-shrink-0 leading-none group-hover:scale-110 transition-transform duration-200">
+                    {answer.emoji}
+                  </span>
+                  <span className="text-sm sm:text-base md:text-lg font-medium leading-relaxed text-left flex-1 hyphens-auto break-words">
+                    {answer.text}
+                  </span>
+                </div>
               </Button>
             ))}
           </div>

@@ -3,32 +3,32 @@ import { QuizQuestion, ManifestationProfile } from "@/types/quiz";
 export const quizQuestions: QuizQuestion[] = [
   {
     id: "primary_desire",
-    question: "If you could change ONE thing instantly, what would it be?",
+    question: "🚨 VERDADE CHOCANTE: 99% das pessoas NÃO sabem qual é o seu MAIOR BLOQUEIO energético... Qual dessas áreas da sua vida você mais DESEJA transformar AGORA?",
     answers: [
-      { id: "money", text: "Bank account", emoji: "💰", value: "money" },
-      { id: "love", text: "True love", emoji: "❤️", value: "love" },
-      { id: "health", text: "Perfect health", emoji: "🌟", value: "health" },
-      { id: "purpose", text: "Life purpose", emoji: "🎯", value: "purpose" }
+      { id: "money", text: "💰 Dinheiro abundante fluindo naturalmente", emoji: "💰", value: "money" },
+      { id: "love", text: "❤️ Relacionamento dos sonhos magnetizando", emoji: "❤️", value: "love" },
+      { id: "health", text: "🌟 Saúde vibrante e energia ilimitada", emoji: "🌟", value: "health" },
+      { id: "purpose", text: "🎯 Propósito de vida cristalino e poderoso", emoji: "🎯", value: "purpose" }
     ]
   },
   {
     id: "manifestation_frequency",
-    question: "How often do you try to manifest?",
+    question: "⚡ REVELAÇÃO: Existe uma FREQUÊNCIA específica que ativa sua glândula pineal... Com que frequência você sente que está 'conectado' com seu poder interior?",
     answers: [
-      { id: "daily", text: "Daily", emoji: "🔄", value: "daily" },
-      { id: "weekly", text: "Weekly", emoji: "📅", value: "weekly" },
-      { id: "rarely", text: "Rarely", emoji: "⚡", value: "rarely" },
-      { id: "never", text: "Never", emoji: "🚫", value: "never" }
+      { id: "daily", text: "🔄 Todos os dias (energia alta)", emoji: "🔄", value: "daily" },
+      { id: "weekly", text: "📅 Algumas vezes por semana", emoji: "📅", value: "weekly" },
+      { id: "rarely", text: "⚡ Raramente (mas quando acontece é INTENSO)", emoji: "⚡", value: "rarely" },
+      { id: "never", text: "🚫 Quase nunca... sinto bloqueado", emoji: "🚫", value: "never" }
     ]
   },
   {
     id: "main_block",
-    question: "What's STOPPING your manifestation most?",
+    question: "🔥 ÚLTIMO TESTE: Cientistas descobriram que 1 SUBSTÂNCIA está calcificando sua glândula pineal e BLOQUEANDO 90% do seu potencial... O que você sente que mais te IMPEDE de manifestar?",
     answers: [
-      { id: "beliefs", text: "Limiting beliefs", emoji: "🧠", value: "beliefs" },
-      { id: "knowledge", text: "Lack of knowledge", emoji: "📚", value: "knowledge" },
-      { id: "fear", text: "Fear", emoji: "😨", value: "fear" },
-      { id: "all", text: "All of the above", emoji: "⚡", value: "all" }
+      { id: "beliefs", text: "🧠 Crenças limitantes profundas", emoji: "🧠", value: "beliefs" },
+      { id: "knowledge", text: "📚 Falta do método correto", emoji: "📚", value: "knowledge" },
+      { id: "fear", text: "😨 Medo do próprio poder", emoji: "😨", value: "fear" },
+      { id: "toxins", text: "☠️ Toxinas bloqueando minha pineal", emoji: "☠️", value: "toxins" }
     ]
   }
 ];
@@ -36,12 +36,21 @@ export const quizQuestions: QuizQuestion[] = [
 export const revelationTexts: Record<string, (value: string) => string> = {
   primary_desire: (value: string) => {
     const texts = {
-      money: "💰 INTERESTING... You chose MONEY! This reveals something DEEP about your soul...",
-      love: "❤️ FASCINATING... You chose LOVE! This reveals something POWERFUL about your heart...",
-      health: "🌟 AMAZING... You chose HEALTH! This reveals something VITAL about your energy...",
-      purpose: "🎯 INCREDIBLE... You chose PURPOSE! This reveals something SACRED about your mission..."
+      money: "💰 INTERESSANTE... Você escolheu DINHEIRO! Isso revela que sua pineal está EXATAMENTE na frequência da abundância... MAS há algo BLOQUEANDO...",
+      love: "❤️ FASCINANTE... Você escolheu AMOR! Sua energia do coração está ATIVA, mas sua pineal precisa de LIMPEZA para magnetizar...",
+      health: "🌟 INCRÍVEL... Você escolheu SAÚDE! Sua intuição está te guiando para o que mais importa... sua pineal SABE o segredo...",
+      purpose: "🎯 PODEROSO... Você escolheu PROPÓSITO! Sua alma está chamando... mas calcificações estão SILENCIANDO sua voz interior..."
     };
     return texts[value as keyof typeof texts] || texts.money;
+  },
+  manifestation_frequency: (value: string) => {
+    const texts = {
+      daily: "🔄 IMPRESSIONANTE! Energia diária significa que sua pineal está QUASE desbloqueada... falta apenas 1 PASSO...",
+      weekly: "📅 REVELADOR! Suas oscilações mostram que você TEM o poder... mas algo está INTERFERINDO na conexão...",
+      rarely: "⚡ CHOCANTE! Esses momentos intensos provam que sua pineal está FUNCIONANDO... mas está 90% BLOQUEADA...",
+      never: "🚫 CRUCIAL! Sentir-se bloqueado é o PRIMEIRO sinal de calcificação severa... mas isso TEM solução..."
+    };
+    return texts[value as keyof typeof texts] || texts.daily;
   }
 };
 

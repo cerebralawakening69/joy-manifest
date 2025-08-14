@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { QuizState, QuizAnswer } from "@/types/quiz";
 import { quizQuestions, revelationTexts, getManifestationProfile, getPatternText } from "@/data/quizData";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,7 @@ export const useQuizLogic = () => {
     trackInitiateCheckout,
     trackPatternRevealed 
   } = useMetaPixel();
+  
   const [quizState, setQuizState] = useState<QuizState>({
     currentScreen: 0,
     answers: {},
@@ -35,17 +36,170 @@ export const useQuizLogic = () => {
   const [soundTrigger, setSoundTrigger] = useState<string | null>(null);
   const [currentDiscovery, setCurrentDiscovery] = useState<any>(null);
 
+  // Static tracking functions to prevent infinite loops
+  const trackPageView = async () => {
+    console.log('🔄 trackPageView called');
+    
+    // Check localStorage first
+    let currentQuizId = localStorage.getItem('quiz_current_id');
+    
+    if (currentQuizId) {
+      console.log('✅ Using existing quizId from localStorage:', currentQuizId);
+      
+      // Update state if needed
+      setQuizState(prev => {
+        if (prev.quizId !== currentQuizId) {
+          console.log('🔄 Syncing state with localStorage quizId');
+          return { ...prev, quizId: currentQuizId };
+        }
+        return prev;
+      });
+      
+      // Update existing record with page view
+      const { error } = await supabase
+        .from('quiz_manifestation')
+        .update({ 
+          page_viewed_at: new Date().toISOString(),
+          user_agent: navigator.userAgent,
+          device_type: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'mobile' : 'desktop',
+          referrer: document.referrer || null
+        })
+        .eq('id', currentQuizId);
+      
+      if (error) {
+        console.error('❌ Error updating quiz record:', error);
+      } else {
+        console.log('✅ Quiz record updated with page view');
+      }
+      return currentQuizId;
+    }
+
+    // Create new quiz record
+    console.log('🆕 Creating new quiz record');
+    const completionData = getCompletionData();
+    
+    const { data: quizData, error } = await supabase
+      .from('quiz_manifestation')
+      .insert({
+        page_viewed_at: new Date().toISOString(),
+        quiz_started_at: new Date().toISOString(),
+        utm_source: completionData.utm_source,
+        utm_medium: completionData.utm_medium,
+        utm_campaign: completionData.utm_campaign,
+        utm_term: completionData.utm_term,
+        utm_content: completionData.utm_content,
+        user_agent: completionData.user_agent,
+        device_type: completionData.device_type,
+        referrer: completionData.referrer,
+        facebook_pixel_id: completionData.facebook_pixel_id,
+        bemob_click_id: completionData.bemob_click_id,
+        primary_desire: 'unknown',
+        manifestation_frequency: 'unknown',
+        main_block: 'unknown',
+        manifestation_profile: 'unknown',
+        readiness_score: 0
+      })
+      .select('id')
+      .single();
+
+    if (error) {
+      console.error('❌ Error creating quiz record:', error);
+      return null;
+    }
+
+    if (quizData?.id) {
+      localStorage.setItem('quiz_current_id', quizData.id);
+      setQuizState(prev => ({ ...prev, quizId: quizData.id }));
+      console.log('✅ New quiz record created, quizId:', quizData.id);
+      return quizData.id;
+    }
+    
+    return null;
+  };
+
+  const trackQuestionProgress = async (questionNumber: number, questionId: string) => {
+    const currentQuizId = localStorage.getItem('quiz_current_id');
+    if (!currentQuizId) {
+      console.error('❌ No quizId available for tracking question progress');
+      return;
+    }
+
+    console.log(`📊 Tracking question ${questionNumber} progress`);
+    
+    const currentProgress = quizState.answers;
+    const progressWithTimestamp = {
+      ...currentProgress,
+      [`${questionId}_timestamp`]: new Date().toISOString()
+    };
+
+    const { error } = await supabase
+      .from('quiz_manifestation')
+      .update({
+        last_question_reached: questionNumber,
+        questions_progress: progressWithTimestamp
+      })
+      .eq('id', currentQuizId);
+
+    if (error) {
+      console.error('❌ Error tracking question progress:', error);
+    } else {
+      console.log(`✅ Question ${questionNumber} progress tracked`);
+    }
+  };
+
+  const trackEmailScreenReached = async () => {
+    const currentQuizId = localStorage.getItem('quiz_current_id');
+    if (!currentQuizId) {
+      console.error('❌ No quizId available for tracking email screen');
+      return;
+    }
+
+    console.log('📧 Tracking email screen reached');
+    
+    const { error } = await supabase
+      .from('quiz_manifestation')
+      .update({ email_screen_reached_at: new Date().toISOString() })
+      .eq('id', currentQuizId);
+    
+    if (error) {
+      console.error('❌ Error tracking email screen:', error);
+    } else {
+      console.log('✅ Email screen reached tracked');
+    }
+  };
+
+  const trackResultViewed = async () => {
+    const currentQuizId = localStorage.getItem('quiz_current_id');
+    if (!currentQuizId) {
+      console.error('❌ No quizId available for tracking result view');
+      return;
+    }
+
+    console.log('🎯 Tracking result viewed');
+    
+    const { error } = await supabase
+      .from('quiz_manifestation')
+      .update({ result_viewed_at: new Date().toISOString() })
+      .eq('id', currentQuizId);
+    
+    if (error) {
+      console.error('❌ Error tracking result view:', error);
+    } else {
+      console.log('✅ Result view tracked');
+    }
+  };
+
   const startQuiz = async () => {
     startQuizTracking();
     trackEvent('quiz_started', { timestamp: new Date().toISOString() });
-    // Meta Pixel: Track quiz started
+    
     trackQuizStarted({
       content_name: 'Manifestation Quiz',
       content_category: 'Quiz',
       value: 18
     });
     
-    // Create initial record with quizId immediately
+    // Ensure we have a quizId before starting
     await trackPageView();
     
     setQuizState(prev => ({ ...prev, currentScreen: 1 }));
@@ -100,9 +254,10 @@ export const useQuizLogic = () => {
       }, 1000);
     }
     
-    // Track question progress
-    const currentQuestionNumber = quizState.currentScreen;
-    await trackQuestionProgress(currentQuestionNumber, questionId);
+    // Track question progress after a short delay to ensure state is updated
+    setTimeout(() => {
+      trackQuestionProgress(quizState.currentScreen, questionId);
+    }, 200);
   };
 
   const continueFromRevelation = () => {
@@ -128,27 +283,15 @@ export const useQuizLogic = () => {
   };
 
   const submitEmailAndName = async (email: string, name: string) => {
-    // Get quizId from state or localStorage
-    let currentQuizId = quizState.quizId;
+    const currentQuizId = localStorage.getItem('quiz_current_id');
     if (!currentQuizId) {
-      currentQuizId = localStorage.getItem('quiz_current_id');
-      if (currentQuizId) {
-        setQuizState(prev => ({ ...prev, quizId: currentQuizId }));
-      }
-    }
-    
-    if (!currentQuizId) {
-      console.log('⚠️ No quizId found, creating new record for email submission');
-      // Fallback: create new record if somehow we don't have one
-      currentQuizId = await trackPageView();
-      
-      if (!currentQuizId) {
-        console.error('❌ Failed to create quiz record for email submission');
-        return;
-      }
+      console.error('❌ No quizId available for email submission');
+      return;
     }
 
-    // Calculate final profile
+    console.log('📧 Submitting email:', { email, name });
+    
+    // Calculate final profile and readiness score
     const profile = getManifestationProfile(quizState.answers);
     const readinessScore = 75;
 
@@ -157,7 +300,7 @@ export const useQuizLogic = () => {
       await updateQuizRecord(currentQuizId, email, name, profile, readinessScore);
       await saveQuizAnswers(currentQuizId, quizState.answers);
 
-      console.log('Email and name saved successfully for quiz:', currentQuizId);
+      console.log('✅ Email and name saved successfully for quiz:', currentQuizId);
 
       setQuizState(prev => ({
         ...prev,
@@ -226,7 +369,7 @@ export const useQuizLogic = () => {
         }));
       }, 1000);
     } catch (error) {
-      console.error('Error in submitEmailAndName:', error);
+      console.error('❌ Error in submitEmailAndName:', error);
       toast({
         title: "Error", 
         description: "Failed to save your results. Please try again.",
@@ -235,194 +378,24 @@ export const useQuizLogic = () => {
     }
   };
 
-  const trackPageView = useCallback(async () => {
-    try {
-      // Check if we already have a quizId in localStorage
-      const existingQuizId = localStorage.getItem('quiz_current_id');
-      
-      if (existingQuizId) {
-        console.log('🔄 Using existing quizId from localStorage:', existingQuizId);
-        
-        // Check if this record exists in database
-        const { data: existingQuiz } = await supabase
-          .from('quiz_manifestation')
-          .select('id')
-          .eq('id', existingQuizId)
-          .single();
-        
-        if (existingQuiz) {
-          console.log('✅ Quiz record found in database, reusing existing record');
-          setQuizState(prev => ({ ...prev, quizId: existingQuizId }));
-          return existingQuizId;
-        } else {
-          console.log('⚠️ Quiz record not found in database, creating new one');
-        }
-      }
-
-      const completionData = getCompletionData();
-      
-      const { data: quizData, error } = await supabase
-        .from('quiz_manifestation')
-        .insert({
-          page_viewed_at: new Date().toISOString(),
-          quiz_started_at: new Date().toISOString(),
-          utm_source: completionData.utm_source,
-          utm_medium: completionData.utm_medium,
-          utm_campaign: completionData.utm_campaign,
-          utm_term: completionData.utm_term,
-          utm_content: completionData.utm_content,
-          user_agent: completionData.user_agent,
-          device_type: completionData.device_type,
-          referrer: completionData.referrer,
-          facebook_pixel_id: completionData.facebook_pixel_id,
-          bemob_click_id: completionData.bemob_click_id,
-          primary_desire: 'unknown',
-          manifestation_frequency: 'unknown',
-          main_block: 'unknown',
-          manifestation_profile: 'unknown',
-          readiness_score: 0
-        })
-        .select('id')
-        .single();
-
-      if (error) {
-        console.error('❌ Error tracking page view:', error);
-        return null;
-      }
-
-      if (quizData?.id) {
-        // Store quizId in localStorage for persistence
-        localStorage.setItem('quiz_current_id', quizData.id);
-        
-        // Update React state
-        setQuizState(prev => ({ ...prev, quizId: quizData.id }));
-        
-        console.log('✅ New quiz record created, quizId:', quizData.id);
-        return quizData.id;
-      }
-    } catch (error) {
-      console.error('❌ Error in trackPageView:', error);
-      return null;
-    }
-  }, [getCompletionData]);
-
-  const trackQuestionProgress = async (questionNumber: number, questionId: string) => {
-    // Get quizId from state or localStorage
-    let currentQuizId = quizState.quizId;
-    if (!currentQuizId) {
-      currentQuizId = localStorage.getItem('quiz_current_id');
-      if (currentQuizId) {
-        setQuizState(prev => ({ ...prev, quizId: currentQuizId }));
-      }
-    }
-    
-    if (!currentQuizId) {
-      console.error('❌ No quizId available for tracking question progress');
-      return;
-    }
-
-    try {
-      const currentProgress = quizState.answers;
-      const progressWithTimestamp = {
-        ...currentProgress,
-        [`${questionId}_timestamp`]: new Date().toISOString()
-      };
-
-      const { error } = await supabase
-        .from('quiz_manifestation')
-        .update({
-          last_question_reached: questionNumber,
-          questions_progress: progressWithTimestamp
-        })
-        .eq('id', currentQuizId);
-
-      if (error) {
-        console.error('❌ Error tracking question progress:', error);
-      } else {
-        console.log(`✅ Question ${questionNumber} progress tracked for quiz ${currentQuizId}`);
-      }
-    } catch (error) {
-      console.error('❌ Error tracking question progress:', error);
-    }
-  };
-
-  const trackEmailScreenReached = async () => {
-    // Get quizId from state or localStorage
-    const currentQuizId = quizState.quizId || localStorage.getItem('quiz_current_id');
-    
-    if (!currentQuizId) {
-      console.log('No quizId available for tracking email screen');
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('quiz_manifestation')
-        .update({
-          email_screen_reached_at: new Date().toISOString()
-        })
-        .eq('id', currentQuizId);
-
-      if (error) {
-        console.error('Error tracking email screen reached:', error);
-      } else {
-        console.log('Email screen reached tracked for quiz', currentQuizId);
-      }
-    } catch (error) {
-      console.error('Error tracking email screen reached:', error);
-    }
-  };
-
-  const trackResultViewed = async () => {
-    // Get quizId from state or localStorage
-    const currentQuizId = quizState.quizId || localStorage.getItem('quiz_current_id');
-    
-    if (!currentQuizId) {
-      console.log('No quizId available for tracking result viewed');
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('quiz_manifestation')
-        .update({
-          result_viewed_at: new Date().toISOString()
-        })
-        .eq('id', currentQuizId);
-
-      if (error) {
-        console.error('Error tracking result viewed:', error);
-      } else {
-        console.log('Result viewed tracked for quiz', currentQuizId);
-      }
-    } catch (error) {
-      console.error('Error tracking result viewed:', error);
-    }
-  };
-
   const updateQuizRecord = async (quizId: string, email: string, name: string, profile: any, readinessScore: number) => {
-    try {
-      const { error } = await supabase
-        .from('quiz_manifestation')
-        .update({
-          email,
-          name,
-          primary_desire: quizState.answers.primary_desire || 'unknown',
-          manifestation_frequency: quizState.answers.manifestation_frequency || 'unknown', 
-          main_block: quizState.answers.main_block || 'unknown',
-          manifestation_profile: profile.title,
-          readiness_score: readinessScore,
-          quiz_completed_at: new Date().toISOString(),
-          conversion_event_fired: true
-        })
-        .eq('id', quizId);
+    const { error } = await supabase
+      .from('quiz_manifestation')
+      .update({
+        email,
+        name,
+        primary_desire: quizState.answers.primary_desire || 'unknown',
+        manifestation_frequency: quizState.answers.manifestation_frequency || 'unknown', 
+        main_block: quizState.answers.main_block || 'unknown',
+        manifestation_profile: profile.title,
+        readiness_score: readinessScore,
+        quiz_completed_at: new Date().toISOString(),
+        conversion_event_fired: true
+      })
+      .eq('id', quizId);
 
-      if (error) {
-        console.error('Error updating quiz record:', error);
-        throw error;
-      }
-    } catch (error) {
-      console.error('Error updating quiz record:', error);
+    if (error) {
+      console.error('❌ Error updating quiz record:', error);
       throw error;
     }
   };
@@ -448,11 +421,10 @@ export const useQuizLogic = () => {
   };
 
   const handleContinueToVSL = async () => {
-    // Get quizId from state or localStorage
-    const currentQuizId = quizState.quizId || localStorage.getItem('quiz_current_id');
+    const currentQuizId = localStorage.getItem('quiz_current_id');
     
     if (!currentQuizId) {
-      console.error('No quiz ID available for VSL tracking');
+      console.error('❌ No quiz ID available for VSL tracking');
       // Still allow user to continue to VSL even if tracking fails
       const affiliateLink = getAffiliateLink();
       window.open(affiliateLink, '_blank');
@@ -462,9 +434,9 @@ export const useQuizLogic = () => {
     // Update VSL click in database
     try {
       await updateVSLClick(currentQuizId);
-      console.log('VSL click tracked successfully for quiz:', currentQuizId);
+      console.log('✅ VSL click tracked successfully for quiz:', currentQuizId);
     } catch (error) {
-      console.error('Failed to track VSL click:', error);
+      console.error('❌ Failed to track VSL click:', error);
     }
 
     // Track affiliate link click

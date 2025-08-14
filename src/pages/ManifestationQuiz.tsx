@@ -39,21 +39,18 @@ const ManifestationQuiz = () => {
     trackResultViewed
   } = useQuizLogic();
 
-  // Clear localStorage only for new sessions (not reloads)
+  // Track page view on mount - only once per session
   useEffect(() => {
-    // Check if this is a new session
-    const sessionId = sessionStorage.getItem('quiz_session_id');
-    if (!sessionId) {
-      // New session - clear previous data and create new session ID
-      localStorage.removeItem('quiz_current_id');
-      sessionStorage.setItem('quiz_session_id', Date.now().toString());
-      console.log('🆕 New session detected, cleared localStorage');
-    } else {
-      console.log('🔄 Existing session, keeping localStorage data');
-    }
+    const hasTrackedPageView = sessionStorage.getItem('page_view_tracked');
     
-    trackPageView();
-  }, []); // Remove trackPageView from dependencies
+    if (!hasTrackedPageView) {
+      console.log('🔄 First page view, tracking...');
+      trackPageView();
+      sessionStorage.setItem('page_view_tracked', 'true');
+    } else {
+      console.log('✅ Page view already tracked this session');
+    }
+  }, []);
 
   // Track email screen reached
   useEffect(() => {

@@ -4,7 +4,7 @@ import { quizQuestions, revelationTexts, getManifestationProfile, getPatternText
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTracking } from "@/hooks/useTracking";
-import { saveQuizAnswers } from "@/hooks/useQuizAnswers";
+import { saveQuizAnswers, updateVSLClick } from "@/hooks/useQuizAnswers";
 import { useMetaPixel } from "@/hooks/useMetaPixel";
 
 export const useQuizLogic = () => {
@@ -185,9 +185,10 @@ export const useQuizLogic = () => {
         return;
       }
 
-      // Save detailed answers
+      // Save detailed answers and store quiz ID
       if (quizData?.id) {
         await saveQuizAnswers(quizData.id, quizState.answers);
+        setQuizState(prev => ({ ...prev, quizId: quizData.id }));
       }
 
       // Track quiz completion
@@ -257,7 +258,17 @@ export const useQuizLogic = () => {
     return getManifestationProfile(quizState.answers);
   };
 
-  const handleContinueToVSL = () => {
+  const handleContinueToVSL = async () => {
+    // Update VSL click in database using stored quiz ID
+    if (quizState.quizId) {
+      try {
+        await updateVSLClick(quizState.quizId);
+        console.log('VSL click tracked successfully');
+      } catch (error) {
+        console.error('Failed to track VSL click:', error);
+      }
+    }
+
     // Track affiliate link click
     trackEvent('affiliate_link_clicked', {
       timestamp: new Date().toISOString(),

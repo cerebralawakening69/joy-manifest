@@ -19,6 +19,30 @@ export const saveQuizAnswers = async (quizId: string, answers: Record<string, st
   }
 };
 
+export const updateVSLClick = async (quizId: string) => {
+  // First get current click count
+  const { data: currentData } = await supabase
+    .from('quiz_manifestation')
+    .select('vsl_click_count')
+    .eq('id', quizId)
+    .single();
+
+  const newClickCount = (currentData?.vsl_click_count || 0) + 1;
+
+  const { error } = await supabase
+    .from('quiz_manifestation')
+    .update({
+      vsl_clicked_at: new Date().toISOString(),
+      vsl_click_count: newClickCount
+    })
+    .eq('id', quizId);
+
+  if (error) {
+    console.error('Error updating VSL click:', error);
+    throw error;
+  }
+};
+
 const getAnswerText = (questionId: string, answerValue: string): string => {
   // Map answer values to readable text
   const answerTexts: Record<string, Record<string, string>> = {

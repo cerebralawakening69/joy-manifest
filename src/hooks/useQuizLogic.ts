@@ -5,10 +5,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTracking } from "@/hooks/useTracking";
 import { saveQuizAnswers } from "@/hooks/useQuizAnswers";
+import { useMetaPixel } from "@/hooks/useMetaPixel";
 
 export const useQuizLogic = () => {
   const { toast } = useToast();
   const { trackingData, startQuizTracking, getCompletionData, getAffiliateLink, trackEvent } = useTracking();
+  const { 
+    trackQuizStarted, 
+    trackQuizProgress, 
+    trackLead, 
+    trackCompleteRegistration, 
+    trackViewContent, 
+    trackInitiateCheckout,
+    trackPatternRevealed 
+  } = useMetaPixel();
   const [quizState, setQuizState] = useState<QuizState>({
     currentScreen: 0,
     answers: {},
@@ -28,6 +38,12 @@ export const useQuizLogic = () => {
   const startQuiz = () => {
     startQuizTracking();
     trackEvent('quiz_started', { timestamp: new Date().toISOString() });
+    // Meta Pixel: Track quiz started
+    trackQuizStarted({
+      content_name: 'Manifestation Quiz',
+      content_category: 'Quiz',
+      value: 18
+    });
     setQuizState(prev => ({ ...prev, currentScreen: 1 }));
   };
 
@@ -48,6 +64,10 @@ export const useQuizLogic = () => {
       timestamp: new Date().toISOString()
     });
     
+    // Meta Pixel: Track quiz progress
+    const questionNumber = quizState.currentScreen;
+    trackQuizProgress(questionNumber, quizState.manifestationProfile);
+    
     // Show revelation for first question
     if (questionId === "primary_desire") {
       setTimeout(() => {
@@ -62,6 +82,9 @@ export const useQuizLogic = () => {
         setSoundTrigger("pattern_detected");
         setShowPattern(true);
         trackEvent('pattern_shown', { questionId, timestamp: new Date().toISOString() });
+        // Meta Pixel: Track pattern revealed
+        const pattern = getPatternText(quizState.answers);
+        trackPatternRevealed(pattern);
       }, 1000);
     }
     // Show pre-email screen for third question
@@ -87,6 +110,12 @@ export const useQuizLogic = () => {
     setShowPreEmail(false);
     setQuizState(prev => ({ ...prev, currentScreen: 4 }));
     trackEvent('email_screen_reached', { timestamp: new Date().toISOString() });
+    // Meta Pixel: Track email screen view
+    trackViewContent({
+      content_name: 'Email Collection Screen',
+      content_category: 'Lead Generation',
+      value: 18
+    });
   };
 
   const submitEmailAndName = async (email: string, name: string) => {
@@ -97,6 +126,18 @@ export const useQuizLogic = () => {
       email,
       name,
       timestamp: new Date().toISOString()
+    });
+    
+    // Meta Pixel: Track lead conversion (main conversion event)
+    trackLead({
+      content_name: 'Manifestation Quiz Lead',
+      value: 18,
+      currency: 'USD',
+      custom_data: {
+        email,
+        name,
+        quiz_type: 'manifestation'
+      }
     });
     
     // Calculate final profile
@@ -158,6 +199,17 @@ export const useQuizLogic = () => {
         readinessScore: 75,
         timestamp: new Date().toISOString()
       });
+      
+      // Meta Pixel: Track complete registration
+      trackCompleteRegistration({
+        content_name: profile.title,
+        value: 18,
+        currency: 'USD',
+        custom_data: {
+          manifestation_profile: profile.title,
+          readiness_score: 75
+        }
+      });
 
       toast({
         title: "Success!",
@@ -210,6 +262,17 @@ export const useQuizLogic = () => {
     trackEvent('affiliate_link_clicked', {
       timestamp: new Date().toISOString(),
       affiliateId: trackingData.affiliate_id
+    });
+    
+    // Meta Pixel: Track initiate checkout (affiliate click)
+    trackInitiateCheckout({
+      content_name: 'Affiliate Product',
+      value: 18,
+      currency: 'USD',
+      custom_data: {
+        affiliate_id: trackingData.affiliate_id,
+        source: 'quiz_completion'
+      }
     });
     
     // Redirect to the affiliate sales page using tracked affiliate ID

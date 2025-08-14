@@ -95,17 +95,22 @@ export type Database = {
           created_at: string | null
           device_type: string | null
           email: string | null
+          email_screen_reached_at: string | null
           facebook_pixel_id: string | null
           id: string
+          last_question_reached: number | null
           main_block: string
           manifestation_frequency: string
           manifestation_profile: string
           name: string | null
+          page_viewed_at: string | null
           primary_desire: string
+          questions_progress: Json | null
           quiz_completed_at: string | null
           quiz_started_at: string | null
           readiness_score: number
           referrer: string | null
+          result_viewed_at: string | null
           user_agent: string | null
           user_ip: unknown | null
           utm_campaign: string | null
@@ -122,17 +127,22 @@ export type Database = {
           created_at?: string | null
           device_type?: string | null
           email?: string | null
+          email_screen_reached_at?: string | null
           facebook_pixel_id?: string | null
           id?: string
+          last_question_reached?: number | null
           main_block: string
           manifestation_frequency: string
           manifestation_profile: string
           name?: string | null
+          page_viewed_at?: string | null
           primary_desire: string
+          questions_progress?: Json | null
           quiz_completed_at?: string | null
           quiz_started_at?: string | null
           readiness_score: number
           referrer?: string | null
+          result_viewed_at?: string | null
           user_agent?: string | null
           user_ip?: unknown | null
           utm_campaign?: string | null
@@ -149,17 +159,22 @@ export type Database = {
           created_at?: string | null
           device_type?: string | null
           email?: string | null
+          email_screen_reached_at?: string | null
           facebook_pixel_id?: string | null
           id?: string
+          last_question_reached?: number | null
           main_block?: string
           manifestation_frequency?: string
           manifestation_profile?: string
           name?: string | null
+          page_viewed_at?: string | null
           primary_desire?: string
+          questions_progress?: Json | null
           quiz_completed_at?: string | null
           quiz_started_at?: string | null
           readiness_score?: number
           referrer?: string | null
+          result_viewed_at?: string | null
           user_agent?: string | null
           user_ip?: unknown | null
           utm_campaign?: string | null

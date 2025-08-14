@@ -35,7 +35,7 @@ export const useQuizLogic = () => {
   const [soundTrigger, setSoundTrigger] = useState<string | null>(null);
   const [currentDiscovery, setCurrentDiscovery] = useState<any>(null);
 
-  const startQuiz = () => {
+  const startQuiz = async () => {
     startQuizTracking();
     trackEvent('quiz_started', { timestamp: new Date().toISOString() });
     // Meta Pixel: Track quiz started
@@ -44,10 +44,14 @@ export const useQuizLogic = () => {
       content_category: 'Quiz',
       value: 18
     });
+    
+    // Track page view and create initial record
+    await trackPageView();
+    
     setQuizState(prev => ({ ...prev, currentScreen: 1 }));
   };
 
-  const handleAnswer = (questionId: string, answer: QuizAnswer) => {
+  const handleAnswer = async (questionId: string, answer: QuizAnswer) => {
     setQuizState(prev => ({
       ...prev,
       answers: { ...prev.answers, [questionId]: answer.value }
@@ -89,11 +93,16 @@ export const useQuizLogic = () => {
     }
     // Show pre-email screen for third question
     else if (questionId === "main_block") {
-      setTimeout(() => {
+      setTimeout(async () => {
         setShowPreEmail(true);
         trackEvent('pre_email_screen_shown', { timestamp: new Date().toISOString() });
+        await trackEmailScreenReached();
       }, 1000);
     }
+    
+    // Track question progress
+    const currentQuestionNumber = quizState.currentScreen;
+    await trackQuestionProgress(currentQuestionNumber, questionId);
   };
 
   const continueFromRevelation = () => {
@@ -170,7 +179,8 @@ export const useQuizLogic = () => {
           facebook_pixel_id: completionData.facebook_pixel_id,
           bemob_click_id: completionData.bemob_click_id,
           quiz_started_at: completionData.quiz_started_at,
-          quiz_completed_at: completionData.quiz_completed_at
+          quiz_completed_at: completionData.quiz_completed_at,
+          conversion_event_fired: true
         })
         .select()
         .single();
@@ -185,11 +195,14 @@ export const useQuizLogic = () => {
         return;
       }
 
-      // Save detailed answers and store quiz ID
-      if (quizData?.id) {
-        await saveQuizAnswers(quizData.id, quizState.answers);
-        setQuizState(prev => ({ ...prev, quizId: quizData.id }));
-      }
+        // Save detailed answers and store quiz ID for tracking
+        if (quizData?.id) {
+          await saveQuizAnswers(quizData.id, quizState.answers);
+          setQuizState(prev => ({ ...prev, quizId: quizData.id }));
+          
+          // Update the existing record instead of creating a new one
+          await updateQuizRecord(quizData.id, email, name, profile, 75);
+        }
 
       // Track quiz completion
       trackEvent('quiz_completed', {
@@ -219,7 +232,8 @@ export const useQuizLogic = () => {
       
       setSoundTrigger("email_success");
       
-      setTimeout(() => {
+      setTimeout(async () => {
+        await trackResultViewed();
         setSoundTrigger("final_reveal");
         setQuizState(prev => ({ 
           ...prev, 
@@ -235,6 +249,132 @@ export const useQuizLogic = () => {
         description: "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
+    }
+  };
+
+  // Tracking functions for funnel analytics
+  const trackPageView = async () => {
+    const trackingData = getCompletionData();
+    
+    try {
+      const { error } = await supabase
+        .from('quiz_manifestation')
+        .insert({
+          page_viewed_at: new Date().toISOString(),
+          utm_source: trackingData.utm_source,
+          utm_medium: trackingData.utm_medium,
+          utm_campaign: trackingData.utm_campaign,
+          utm_term: trackingData.utm_term,
+          utm_content: trackingData.utm_content,
+          user_agent: trackingData.user_agent,
+          device_type: trackingData.device_type,
+          referrer: trackingData.referrer,
+          facebook_pixel_id: trackingData.facebook_pixel_id,
+          bemob_click_id: trackingData.bemob_click_id,
+          user_ip: trackingData.user_ip,
+          primary_desire: 'unknown',
+          manifestation_frequency: 'unknown',
+          main_block: 'unknown',
+          manifestation_profile: 'unknown',
+          readiness_score: 0
+        });
+
+      if (error) {
+        console.error('Error tracking page view:', error);
+      }
+    } catch (error) {
+      console.error('Error tracking page view:', error);
+    }
+  };
+
+  const trackQuestionProgress = async (questionNumber: number, questionId: string) => {
+    if (!quizState.quizId) return;
+    
+    try {
+      const currentProgress = quizState.answers;
+      const progressWithTimestamp = {
+        ...currentProgress,
+        [`${questionId}_timestamp`]: new Date().toISOString()
+      };
+
+      const { error } = await supabase
+        .from('quiz_manifestation')
+        .update({
+          last_question_reached: questionNumber,
+          questions_progress: progressWithTimestamp
+        })
+        .eq('id', quizState.quizId);
+
+      if (error) {
+        console.error('Error tracking question progress:', error);
+      }
+    } catch (error) {
+      console.error('Error tracking question progress:', error);
+    }
+  };
+
+  const trackEmailScreenReached = async () => {
+    if (!quizState.quizId) return;
+    
+    try {
+      const { error } = await supabase
+        .from('quiz_manifestation')
+        .update({
+          email_screen_reached_at: new Date().toISOString()
+        })
+        .eq('id', quizState.quizId);
+
+      if (error) {
+        console.error('Error tracking email screen reached:', error);
+      }
+    } catch (error) {
+      console.error('Error tracking email screen reached:', error);
+    }
+  };
+
+  const trackResultViewed = async () => {
+    if (!quizState.quizId) return;
+    
+    try {
+      const { error } = await supabase
+        .from('quiz_manifestation')
+        .update({
+          result_viewed_at: new Date().toISOString()
+        })
+        .eq('id', quizState.quizId);
+
+      if (error) {
+        console.error('Error tracking result viewed:', error);
+      }
+    } catch (error) {
+      console.error('Error tracking result viewed:', error);
+    }
+  };
+
+  const updateQuizRecord = async (quizId: string, email: string, name: string, profile: any, readinessScore: number) => {
+    try {
+      const { error } = await supabase
+        .from('quiz_manifestation')
+        .update({
+          email,
+          name,
+          primary_desire: quizState.answers.primary_desire || 'unknown',
+          manifestation_frequency: quizState.answers.manifestation_frequency || 'unknown', 
+          main_block: quizState.answers.main_block || 'unknown',
+          manifestation_profile: profile.title,
+          readiness_score: readinessScore,
+          quiz_completed_at: new Date().toISOString(),
+          conversion_event_fired: true
+        })
+        .eq('id', quizId);
+
+      if (error) {
+        console.error('Error updating quiz record:', error);
+        throw error;
+      }
+    } catch (error) {
+      console.error('Error updating quiz record:', error);
+      throw error;
     }
   };
 

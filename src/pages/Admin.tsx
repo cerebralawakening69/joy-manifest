@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format, parseISO } from "date-fns";
 import { Eye, Download, Search, Filter } from "lucide-react";
+import { FunnelDashboard } from "@/components/FunnelDashboard";
 
 interface Lead {
   id: string;
@@ -221,6 +223,15 @@ export default function Admin() {
           <p className="text-muted-foreground">Gerencie seus leads e analise conversões</p>
         </div>
 
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+            <TabsTrigger value="funnel">Funil Completo</TabsTrigger>
+            <TabsTrigger value="leads">Leads Detalhados</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Card className="p-6">
@@ -249,123 +260,132 @@ export default function Admin() {
           </Card>
         </div>
 
-        {/* Filters and Actions */}
-        <Card className="p-6 mb-6">
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-            <div className="flex flex-col sm:flex-row gap-4 flex-1">
-              <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Buscar por nome ou email..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Select value={profileFilter} onValueChange={setProfileFilter}>
-                <SelectTrigger className="w-48">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Filtrar por perfil" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os Perfis</SelectItem>
-                  <SelectItem value="The Spiritual Seeker">Spiritual Seeker</SelectItem>
-                  <SelectItem value="The Abundance Blocker">Abundance Blocker</SelectItem>
-                  <SelectItem value="The Manifesting Warrior">Manifesting Warrior</SelectItem>
-                  <SelectItem value="The Cosmic Connector">Cosmic Connector</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={dateFilter} onValueChange={setDateFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Período" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todo período</SelectItem>
-                  <SelectItem value="today">Hoje</SelectItem>
-                  <SelectItem value="week">Última semana</SelectItem>
-                  <SelectItem value="month">Último mês</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button onClick={exportToCSV} className="flex items-center gap-2">
-              <Download className="h-4 w-4" />
-              Exportar CSV
-            </Button>
-          </div>
-        </Card>
+          </TabsContent>
 
-        {/* Leads Table */}
-        <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-muted/50">
-                <tr>
-                  <th className="text-left p-4 font-medium">Lead</th>
-                  <th className="text-left p-4 font-medium">Perfil</th>
-                  <th className="text-left p-4 font-medium">Score</th>
-                  <th className="text-left p-4 font-medium">Detalhes</th>
-                  <th className="text-left p-4 font-medium">Tracking</th>
-                  <th className="text-left p-4 font-medium">Data</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredLeads.map((lead) => (
-                  <tr key={lead.id} className="border-t hover:bg-muted/25 transition-colors">
-                    <td className="p-4">
-                      <div>
-                        <div className="font-medium">{lead.name}</div>
-                        <div className="text-sm text-muted-foreground">{lead.email}</div>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <Badge variant="outline" className="text-xs">
-                        {lead.manifestation_profile}
-                      </Badge>
-                    </td>
-                    <td className="p-4">
-                      <Badge className={`${getScoreColor(lead.readiness_score)} text-xs`}>
-                        {lead.readiness_score}
-                      </Badge>
-                    </td>
-                    <td className="p-4">
-                      <div className="text-sm space-y-1">
-                        <div><span className="font-medium">Desejo:</span> {lead.primary_desire}</div>
-                        <div><span className="font-medium">Frequência:</span> {lead.manifestation_frequency}</div>
-                        <div><span className="font-medium">Bloqueio:</span> {lead.main_block}</div>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="text-sm space-y-1">
-                        {lead.utm_source && <div><span className="font-medium">Source:</span> {lead.utm_source}</div>}
-                        {lead.utm_campaign && <div><span className="font-medium">Campaign:</span> {lead.utm_campaign}</div>}
-                        {lead.device_type && <div><span className="font-medium">Device:</span> {lead.device_type}</div>}
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="text-sm text-muted-foreground">
-                        {format(parseISO(lead.created_at), 'dd/MM/yyyy')}
-                        <br />
-                        {format(parseISO(lead.created_at), 'HH:mm')}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {filteredLeads.length === 0 && (
-            <div className="text-center py-12">
-              <div className="text-muted-foreground mb-4">Nenhum lead encontrado</div>
-              <Button onClick={() => {
-                setSearchTerm("");
-                setProfileFilter("all");
-                setDateFilter("all");
-              }}>
-                Limpar Filtros
-              </Button>
-            </div>
-          )}
-        </Card>
+          <TabsContent value="funnel" className="space-y-4">
+            <FunnelDashboard />
+          </TabsContent>
+
+          <TabsContent value="leads" className="space-y-4">
+            {/* Filters and Actions */}
+            <Card className="p-6 mb-6">
+              <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+                <div className="flex flex-col sm:flex-row gap-4 flex-1">
+                  <div className="relative flex-1 max-w-sm">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                    <Input
+                      placeholder="Buscar por nome ou email..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  <Select value={profileFilter} onValueChange={setProfileFilter}>
+                    <SelectTrigger className="w-48">
+                      <Filter className="h-4 w-4 mr-2" />
+                      <SelectValue placeholder="Filtrar por perfil" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos os Perfis</SelectItem>
+                      <SelectItem value="The Spiritual Seeker">Spiritual Seeker</SelectItem>
+                      <SelectItem value="The Abundance Blocker">Abundance Blocker</SelectItem>
+                      <SelectItem value="The Manifesting Warrior">Manifesting Warrior</SelectItem>
+                      <SelectItem value="The Cosmic Connector">Cosmic Connector</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={dateFilter} onValueChange={setDateFilter}>
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder="Período" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todo período</SelectItem>
+                      <SelectItem value="today">Hoje</SelectItem>
+                      <SelectItem value="week">Última semana</SelectItem>
+                      <SelectItem value="month">Último mês</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button onClick={exportToCSV} className="flex items-center gap-2">
+                  <Download className="h-4 w-4" />
+                  Exportar CSV
+                </Button>
+              </div>
+            </Card>
+
+            {/* Leads Table */}
+            <Card className="overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="text-left p-4 font-medium">Lead</th>
+                      <th className="text-left p-4 font-medium">Perfil</th>
+                      <th className="text-left p-4 font-medium">Score</th>
+                      <th className="text-left p-4 font-medium">Detalhes</th>
+                      <th className="text-left p-4 font-medium">Tracking</th>
+                      <th className="text-left p-4 font-medium">Data</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredLeads.map((lead) => (
+                      <tr key={lead.id} className="border-t hover:bg-muted/25 transition-colors">
+                        <td className="p-4">
+                          <div>
+                            <div className="font-medium">{lead.name}</div>
+                            <div className="text-sm text-muted-foreground">{lead.email}</div>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <Badge variant="outline" className="text-xs">
+                            {lead.manifestation_profile}
+                          </Badge>
+                        </td>
+                        <td className="p-4">
+                          <Badge className={`${getScoreColor(lead.readiness_score)} text-xs`}>
+                            {lead.readiness_score}
+                          </Badge>
+                        </td>
+                        <td className="p-4">
+                          <div className="text-sm space-y-1">
+                            <div><span className="font-medium">Desejo:</span> {lead.primary_desire}</div>
+                            <div><span className="font-medium">Frequência:</span> {lead.manifestation_frequency}</div>
+                            <div><span className="font-medium">Bloqueio:</span> {lead.main_block}</div>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <div className="text-sm space-y-1">
+                            {lead.utm_source && <div><span className="font-medium">Source:</span> {lead.utm_source}</div>}
+                            {lead.utm_campaign && <div><span className="font-medium">Campaign:</span> {lead.utm_campaign}</div>}
+                            {lead.device_type && <div><span className="font-medium">Device:</span> {lead.device_type}</div>}
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <div className="text-sm text-muted-foreground">
+                            {format(parseISO(lead.created_at), 'dd/MM/yyyy')}
+                            <br />
+                            {format(parseISO(lead.created_at), 'HH:mm')}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {filteredLeads.length === 0 && (
+                <div className="text-center py-12">
+                  <div className="text-muted-foreground mb-4">Nenhum lead encontrado</div>
+                  <Button onClick={() => {
+                    setSearchTerm("");
+                    setProfileFilter("all");
+                    setDateFilter("all");
+                  }}>
+                    Limpar Filtros
+                  </Button>
+                </div>
+              )}
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

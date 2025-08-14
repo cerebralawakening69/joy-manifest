@@ -26,9 +26,9 @@ export const QuizHookScreen = ({ onStart }: QuizHookScreenProps) => {
         </p>
         
         <div className="mb-6 sm:mb-8 p-3 sm:p-4 bg-gradient-to-r from-golden/10 to-energy-pink/10 border border-golden/30 rounded-lg animate-fade-in mx-2" style={{ animationDelay: '0.4s' }}>
-          <div className="text-base sm:text-lg font-bold text-golden mb-2">🎁 MYSTERIOUS $18 GIFT AWAITS</div>
+          <div className="text-base sm:text-lg font-bold text-golden mb-2">🎁 MYSTERIOUS EXCLUSIVE GIFT AWAITS</div>
           <div className="text-sm text-muted-foreground leading-relaxed">
-            Complete your manifestation profile and receive a <span className="text-energy-pink font-semibold">secret $18 gift</span> in your email within minutes
+            Complete your manifestation profile and receive an <span className="text-energy-pink font-semibold">exclusive secret gift</span> in your email within minutes
           </div>
         </div>
         
@@ -42,7 +42,7 @@ export const QuizHookScreen = ({ onStart }: QuizHookScreenProps) => {
         </Button>
         
         <div className="text-xs sm:text-sm text-muted-foreground animate-fade-in px-2" style={{ animationDelay: '0.6s' }}>
-          🔒 Takes only 2 minutes • 100% Free • Instant Results + $18 Gift
+          🔒 Takes only 2 minutes • 100% Free • Instant Results + Exclusive Gift
         </div>
       </div>
     </div>

@@ -132,14 +132,21 @@ const ManifestationQuiz = () => {
       {/* Question Screens */}
       {quizState.currentScreen >= 1 && quizState.currentScreen <= 3 && !showRevelation && !showPattern && !showPreEmail && (() => {
         const question = getCurrentQuestion();
-        if (!question) return null;
+        console.log('🔥 ManifestationQuiz rendering question:', { currentScreen: quizState.currentScreen, question: question?.id });
+        if (!question) {
+          console.error('🔥 NO QUESTION FOUND for screen:', quizState.currentScreen);
+          return null;
+        }
 
         return (
           <div key={`question-${quizState.currentScreen}`} className="animate-fade-in">
             <QuizQuestionScreen
               question={question}
               currentScreen={quizState.currentScreen}
-              onAnswer={(answer) => handleAnswer(question.id, answer)}
+              onAnswer={(answer) => {
+                console.log('🔥 ManifestationQuiz onAnswer called:', { questionId: question.id, answer: answer.value });
+                handleAnswer(question.id, answer);
+              }}
             />
           </div>
         );

@@ -452,7 +452,10 @@ export const useQuizLogic = () => {
 
   const getCurrentQuestion = () => {
     const questionIndex = quizState.currentScreen - 1;
-    return quizQuestions[questionIndex];
+    console.log('🔥 getCurrentQuestion:', { currentScreen: quizState.currentScreen, questionIndex, totalQuestions: quizQuestions.length });
+    const question = quizQuestions[questionIndex];
+    console.log('🔥 Question found:', question?.id || 'NULL');
+    return question;
   };
 
   const getRevelationText = () => {

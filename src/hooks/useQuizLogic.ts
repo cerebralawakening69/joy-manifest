@@ -185,9 +185,12 @@ export const useQuizLogic = () => {
         return;
       }
 
-      // Save detailed answers
+      // Save detailed answers in background (non-blocking)
       if (quizData?.id) {
-        await saveQuizAnswers(quizData.id, quizState.answers);
+        saveQuizAnswers(quizData.id, quizState.answers).catch(error => {
+          console.error('Background saveQuizAnswers failed:', error);
+          // Don't throw error - let quiz continue normally
+        });
       }
 
       // Track quiz completion

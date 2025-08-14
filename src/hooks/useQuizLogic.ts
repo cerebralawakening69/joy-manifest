@@ -206,15 +206,19 @@ export const useQuizLogic = () => {
   };
 
   const handleAnswer = async (questionId: string, answer: QuizAnswer) => {
-    console.log(`🎯 handleAnswer called for ${questionId} with value: ${answer.value}`);
+    console.log(`🔥 BUTTON CLICKED: ${questionId} = ${answer.value} | Screen: ${quizState.currentScreen}`);
     
-    const currentQuizId = localStorage.getItem('quiz_current_id');
+    let currentQuizId = localStorage.getItem('quiz_current_id');
+    
+    // FALLBACK: Create new quiz ID if missing (DON'T BLOCK UI)
     if (!currentQuizId) {
-      console.error('❌ No quizId available for saving answer');
-      return;
+      console.log('🔥 NO QUIZ ID - CREATING NEW ONE');
+      currentQuizId = crypto.randomUUID();
+      localStorage.setItem('quiz_current_id', currentQuizId);
+      setQuizState(prev => ({ ...prev, quizId: currentQuizId }));
     }
 
-    // Update state
+    // UPDATE STATE IMMEDIATELY (non-blocking UI response)
     setQuizState(prev => ({
       ...prev,
       answers: { ...prev.answers, [questionId]: answer.value }
@@ -222,55 +226,21 @@ export const useQuizLogic = () => {
     setSelectedAnswer(answer);
     setSoundTrigger("answer_select");
     
-    // CRITICAL: Save answer to database FIRST
-    try {
-      console.log(`💾 Saving answer to database: ${questionId} = ${answer.value}`);
-      await saveQuizAnswers(currentQuizId, { [questionId]: answer.value });
-      console.log(`✅ Answer saved successfully for ${questionId}`);
-    } catch (error) {
-      console.error(`❌ Failed to save answer for ${questionId}:`, error);
-    }
-    
-    // Map questionId to correct question number (1,2,3)
-    const questionNumberMap: Record<string, number> = {
-      'primary_desire': 1,
-      'manifestation_frequency': 2,
-      'main_block': 3
-    };
-    const questionNumber = questionNumberMap[questionId] || 1;
-    
-    console.log(`📊 Tracking progress for question ${questionNumber} (${questionId})`);
-    
-    // Track question progress with correct number
-    try {
-      await trackQuestionProgress(questionNumber, questionId);
-      console.log(`✅ Progress tracked for question ${questionNumber}`);
-    } catch (error) {
-      console.error(`❌ Failed to track progress for question ${questionNumber}:`, error);
-    }
-    
-    // Track answer selection
-    trackEvent('quiz_answer', {
-      questionId,
-      answerId: answer.id,
-      answerValue: answer.value,
-      answerText: answer.text,
-      timestamp: new Date().toISOString()
-    });
-    
-    // Meta Pixel: Track quiz progress
-    trackQuizProgress(questionNumber, quizState.manifestationProfile);
-    
     // Show revelation for first question
     if (questionId === "primary_desire") {
+      console.log('🔥 SHOWING REVELATION SCREEN');
       setTimeout(() => {
         setSoundTrigger("revelation");
         setShowRevelation(true);
         trackEvent('revelation_shown', { questionId, timestamp: new Date().toISOString() });
       }, 1000);
+      // Save in background (non-blocking)
+      saveAnswerInBackground(currentQuizId, questionId, answer);
+      return;
     }
     // Show pattern recognition for second question  
     else if (questionId === "manifestation_frequency") {
+      console.log('🔥 SHOWING PATTERN SCREEN');
       setTimeout(() => {
         setSoundTrigger("pattern_detected");
         setShowPattern(true);
@@ -279,14 +249,64 @@ export const useQuizLogic = () => {
         const pattern = getPatternText({ ...quizState.answers, [questionId]: answer.value });
         trackPatternRevealed(pattern);
       }, 1000);
+      // Save in background (non-blocking)
+      saveAnswerInBackground(currentQuizId, questionId, answer);
+      return;
     }
     // Show pre-email screen for third question
     else if (questionId === "main_block") {
+      console.log('🔥 SHOWING PRE-EMAIL SCREEN');
       setTimeout(async () => {
         setShowPreEmail(true);
         trackEvent('pre_email_screen_shown', { timestamp: new Date().toISOString() });
         await trackEmailScreenReached();
       }, 1000);
+      // Save in background (non-blocking)
+      saveAnswerInBackground(currentQuizId, questionId, answer);
+      return;
+    }
+    
+    // Default: continue to next screen
+    console.log('🔥 NO SPECIAL SCREEN - CONTINUING');
+    // Save in background (non-blocking)
+    saveAnswerInBackground(currentQuizId, questionId, answer);
+  };
+
+  // Background save function (non-blocking)
+  const saveAnswerInBackground = async (quizId: string, questionId: string, answer: QuizAnswer) => {
+    try {
+      console.log(`🔥 SAVING IN BACKGROUND: ${questionId} = ${answer.value}`);
+      
+      // Save answer to database
+      await saveQuizAnswers(quizId, { [questionId]: answer.value });
+      
+      // Map questionId to correct question number (1,2,3)
+      const questionNumberMap: Record<string, number> = {
+        'primary_desire': 1,
+        'manifestation_frequency': 2,
+        'main_block': 3
+      };
+      const questionNumber = questionNumberMap[questionId] || 1;
+      
+      // Track question progress with correct number
+      await trackQuestionProgress(questionNumber, questionId);
+      
+      // Track answer selection
+      trackEvent('quiz_answer', {
+        questionId,
+        answerId: answer.id,
+        answerValue: answer.value,
+        answerText: answer.text,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Meta Pixel: Track quiz progress
+      trackQuizProgress(questionNumber, quizState.manifestationProfile);
+      
+      console.log(`🔥 BACKGROUND SAVE SUCCESS: ${questionId}`);
+    } catch (error) {
+      console.error(`🔥 BACKGROUND SAVE ERROR for ${questionId}:`, error);
+      // Don't block UI on save errors
     }
   };
 

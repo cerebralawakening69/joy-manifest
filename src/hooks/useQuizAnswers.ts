@@ -1,5 +1,24 @@
 import { supabase } from "@/integrations/supabase/client";
 
+export const saveQuizAnswers = async (quizId: string, answers: Record<string, string>) => {
+  const answerInserts = Object.entries(answers).map(([questionId, answerValue]) => ({
+    quiz_id: quizId,
+    question_id: questionId,
+    answer_id: answerValue,
+    answer_text: getAnswerText(questionId, answerValue),
+    answer_value: answerValue
+  }));
+
+  const { error } = await supabase
+    .from('quiz_answers')
+    .insert(answerInserts);
+
+  if (error) {
+    console.error('Error saving quiz answers:', error);
+    throw error;
+  }
+};
+
 const getAnswerText = (questionId: string, answerValue: string): string => {
   // Map answer values to readable text
   const answerTexts: Record<string, Record<string, string>> = {
@@ -24,47 +43,4 @@ const getAnswerText = (questionId: string, answerValue: string): string => {
   };
 
   return answerTexts[questionId]?.[answerValue] || answerValue;
-};
-
-export const saveQuizAnswers = async (quizId: string, answers: Record<string, string>) => {
-  const answerInserts = Object.entries(answers).map(([questionId, answerValue]) => ({
-    quiz_id: quizId,
-    question_id: questionId,
-    answer_id: answerValue,
-    answer_text: getAnswerText(questionId, answerValue),
-    answer_value: answerValue
-  }));
-
-  const { error } = await supabase
-    .from('quiz_answers')
-    .insert(answerInserts);
-
-  if (error) {
-    console.error('Error saving quiz answers:', error);
-    throw error;
-  }
-};
-
-export const updateVSLClick = async (quizId: string) => {
-  // First get current click count
-  const { data: currentData } = await supabase
-    .from('quiz_manifestation')
-    .select('vsl_click_count')
-    .eq('id', quizId)
-    .single();
-
-  const newClickCount = (currentData?.vsl_click_count || 0) + 1;
-
-  const { error } = await supabase
-    .from('quiz_manifestation')
-    .update({
-      vsl_clicked_at: new Date().toISOString(),
-      vsl_click_count: newClickCount
-    })
-    .eq('id', quizId);
-
-  if (error) {
-    console.error('Error updating VSL click:', error);
-    throw error;
-  }
 };

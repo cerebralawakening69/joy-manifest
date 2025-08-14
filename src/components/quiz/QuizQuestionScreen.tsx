@@ -12,7 +12,6 @@ interface QuizQuestionScreenProps {
 
 export const QuizQuestionScreen = ({ question, currentScreen, onAnswer }: QuizQuestionScreenProps) => {
   const progressValue = (currentScreen / 5) * 100;
-  console.log('🔥 QuizQuestionScreen rendering:', { question: question?.id, currentScreen, hasOnAnswer: !!onAnswer });
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden flex flex-col items-center justify-center p-4 sm:p-6">
@@ -30,10 +29,7 @@ export const QuizQuestionScreen = ({ question, currentScreen, onAnswer }: QuizQu
             {question.answers.map((answer, index) => (
               <Button
                 key={answer.id}
-                onClick={() => {
-                  console.log('🔥 BUTTON CLICKED IN COMPONENT:', { answer: answer.value, questionId: question.id });
-                  onAnswer(answer);
-                }}
+                onClick={() => onAnswer(answer)}
                 variant="outline"
                 className="group relative p-4 sm:p-5 text-left justify-start h-auto min-h-[68px] sm:min-h-[76px] border-2 hover:border-primary hover:bg-primary/10 transition-all duration-200 w-full overflow-hidden"
                 style={{ animationDelay: `${index * 0.1}s`, animation: 'slide-up 0.5s ease-out both' }}

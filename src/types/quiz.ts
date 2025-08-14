@@ -19,7 +19,6 @@ export interface QuizState {
   name: string;
   manifestationProfile: string;
   readinessScore: number;
-  quizId?: string;
 }
 
 export interface ManifestationProfile {

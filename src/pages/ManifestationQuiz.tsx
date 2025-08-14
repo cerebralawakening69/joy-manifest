@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useQuizLogic } from "@/hooks/useQuizLogic";
 import { QuizHookScreen } from "@/components/quiz/QuizHookScreen";
 import { QuizQuestionScreen } from "@/components/quiz/QuizQuestionScreen";
@@ -33,38 +32,8 @@ const ManifestationQuiz = () => {
     handleContinueToVSL,
     handleDiscoveryUnlock,
     closeDiscovery,
-    clearSoundTrigger,
-    trackPageView,
-    trackEmailScreenReached,
-    trackResultViewed
+    clearSoundTrigger
   } = useQuizLogic();
-
-  // Track page view on mount - only once per session
-  useEffect(() => {
-    const hasTrackedPageView = sessionStorage.getItem('page_view_tracked');
-    
-    if (!hasTrackedPageView) {
-      console.log('🔄 First page view, tracking...');
-      trackPageView();
-      sessionStorage.setItem('page_view_tracked', 'true');
-    } else {
-      console.log('✅ Page view already tracked this session');
-    }
-  }, []);
-
-  // Track email screen reached
-  useEffect(() => {
-    if (quizState.currentScreen === 4) {
-      trackEmailScreenReached();
-    }
-  }, [quizState.currentScreen, trackEmailScreenReached]);
-
-  // Track result viewed
-  useEffect(() => {
-    if (quizState.currentScreen === 5) {
-      trackResultViewed();
-    }
-  }, [quizState.currentScreen, trackResultViewed]);
 
   return (
     <div className="relative min-h-screen">
@@ -132,21 +101,14 @@ const ManifestationQuiz = () => {
       {/* Question Screens */}
       {quizState.currentScreen >= 1 && quizState.currentScreen <= 3 && !showRevelation && !showPattern && !showPreEmail && (() => {
         const question = getCurrentQuestion();
-        console.log('🔥 ManifestationQuiz rendering question:', { currentScreen: quizState.currentScreen, question: question?.id });
-        if (!question) {
-          console.error('🔥 NO QUESTION FOUND for screen:', quizState.currentScreen);
-          return null;
-        }
+        if (!question) return null;
 
         return (
           <div key={`question-${quizState.currentScreen}`} className="animate-fade-in">
             <QuizQuestionScreen
               question={question}
               currentScreen={quizState.currentScreen}
-              onAnswer={(answer) => {
-                console.log('🔥 ManifestationQuiz onAnswer called:', { questionId: question.id, answer: answer.value });
-                handleAnswer(question.id, answer);
-              }}
+              onAnswer={(answer) => handleAnswer(question.id, answer)}
             />
           </div>
         );

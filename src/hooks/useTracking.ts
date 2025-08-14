@@ -212,24 +212,21 @@ export const useTracking = () => {
   };
 
   const trackEvent = (eventName: string, eventData?: Record<string, any>) => {
-    // Store critical events in localStorage instead of cookies
+    const eventTimestamp = new Date().toISOString();
+    const eventKey = `quiz_event_${eventName}_${Date.now()}`;
+    
     const event = {
       name: eventName,
-      timestamp: new Date().toISOString(),
+      timestamp: eventTimestamp,
       session_id: userSession?.session_id,
       data: eventData || {}
     };
 
-    // Store in localStorage to avoid cookie size issues
-    const existingEvents = JSON.parse(localStorage.getItem('quiz_events') || '[]');
-    existingEvents.push(event);
-    
-    // Keep only last 10 events to prevent storage bloat
-    if (existingEvents.length > 10) {
-      existingEvents.splice(0, existingEvents.length - 10);
-    }
-    
-    localStorage.setItem('quiz_events', JSON.stringify(existingEvents));
+    setCookie(eventKey, JSON.stringify(event), { 
+      expires: 7,
+      sameSite: 'lax',
+      secure: true 
+    });
   };
 
   const clearTrackingData = () => {

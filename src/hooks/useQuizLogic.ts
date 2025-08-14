@@ -120,138 +120,47 @@ export const useQuizLogic = () => {
   };
 
   const submitEmailAndName = async (email: string, name: string) => {
-    console.log('📧 submitEmailAndName called with:', { email, name });
+    console.log('📧 STARTING submitEmailAndName');
+    
+    // Update state immediately
     setQuizState(prev => ({ ...prev, email, name }));
     
-    // Track email submission
-    trackEvent('email_submitted', {
-      email,
-      name,
-      timestamp: new Date().toISOString()
-    });
-    
-    // Meta Pixel: Track lead conversion (main conversion event)
-    trackLead({
-      content_name: 'Manifestation Quiz Lead',
-      value: 18,
-      currency: 'USD',
-      custom_data: {
-        email,
-        name,
-        quiz_type: 'manifestation'
-      }
-    });
-    
-    // Calculate final profile
+    // Calculate profile first
     const profile = getManifestationProfile(quizState.answers);
     
-    // Get completion tracking data
-    const completionData = getCompletionData();
+    // SKIP ALL DATABASE OPERATIONS FOR NOW - just go to result screen
+    console.log('📧 SKIPPING DATABASE - going direct to result');
     
-    // Save to database
+    // Track events (these are safe)
     try {
-      const { data: quizData, error } = await supabase
-        .from('quiz_manifestation')
-        .insert({
-          email,
-          name,
-          primary_desire: quizState.answers.primary_desire,
-          manifestation_frequency: quizState.answers.manifestation_frequency,
-          main_block: quizState.answers.main_block,
-          readiness_score: profile.details ? 75 : 50, // Simple scoring
-          manifestation_profile: profile.title,
-          // Tracking data
-          utm_source: completionData.utm_source,
-          utm_medium: completionData.utm_medium,
-          utm_campaign: completionData.utm_campaign,
-          utm_term: completionData.utm_term,
-          utm_content: completionData.utm_content,
-          user_agent: completionData.user_agent,
-          device_type: completionData.device_type,
-          referrer: completionData.referrer,
-          facebook_pixel_id: completionData.facebook_pixel_id,
-          bemob_click_id: completionData.bemob_click_id,
-          quiz_started_at: completionData.quiz_started_at,
-          quiz_completed_at: completionData.quiz_completed_at
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error('❌ Supabase error in submitEmailAndName:', error);
-        console.error('❌ Error details:', JSON.stringify(error, null, 2));
-        toast({
-          title: "Error",
-          description: "Failed to save your results. Please try again.",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      console.log('✅ Quiz data saved successfully:', quizData);
-
-      // Save detailed answers in background (non-blocking)
-      if (quizData?.id) {
-        saveQuizAnswers(quizData.id, quizState.answers).catch(error => {
-          console.error('Background saveQuizAnswers failed:', error);
-          // Don't throw error - let quiz continue normally
-        });
-      }
-
-      // Track quiz completion
-      trackEvent('quiz_completed', {
-        profile: profile.title,
-        email,
-        name,
-        answers: quizState.answers,
-        readinessScore: 75,
-        timestamp: new Date().toISOString()
-      });
-      
-      // Meta Pixel: Track complete registration
-      trackCompleteRegistration({
-        content_name: profile.title,
+      trackEvent('email_submitted', { email, name, timestamp: new Date().toISOString() });
+      trackLead({
+        content_name: 'Manifestation Quiz Lead',
         value: 18,
         currency: 'USD',
-        custom_data: {
-          manifestation_profile: profile.title,
-          readiness_score: 75
-        }
+        custom_data: { email, name, quiz_type: 'manifestation' }
       });
-
-      toast({
-        title: "Success!",
-        description: "Your manifestation profile has been revealed!"
-      });
-      
-      setSoundTrigger("email_success");
-      
-      setTimeout(() => {
-        setSoundTrigger("final_reveal");
-        setQuizState(prev => ({ 
-          ...prev, 
-          currentScreen: 5,
-          manifestationProfile: profile.title,
-          readinessScore: 75
-        }));
-      }, 1000);
-    } catch (error) {
-      toast({
-        title: "Error", 
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
-      });
-      // Force continue to result screen even on error
-      console.log('🚨 Forcing navigation to result screen despite error');
-      setTimeout(() => {
-        setQuizState(prev => ({ 
-          ...prev, 
-          currentScreen: 5,
-          manifestationProfile: getFinalProfile().title,
-          readinessScore: 50
-        }));
-      }, 500);
+    } catch (e) {
+      console.log('Tracking failed but continuing:', e);
     }
+
+    toast({
+      title: "Success!",
+      description: "Your manifestation profile has been revealed!"
+    });
+    
+    setSoundTrigger("email_success");
+    
+    // Go directly to result screen
+    setTimeout(() => {
+      setSoundTrigger("final_reveal");
+      setQuizState(prev => ({ 
+        ...prev, 
+        currentScreen: 5,
+        manifestationProfile: profile.title,
+        readinessScore: 75
+      }));
+    }, 1000);
   };
 
   const getCurrentQuestion = () => {

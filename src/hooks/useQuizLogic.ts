@@ -205,28 +205,33 @@ export const useQuizLogic = () => {
     setQuizState(prev => ({ ...prev, currentScreen: 1 }));
   };
 
-  const handleAnswer = async (questionId: string, answer: QuizAnswer) => {
+  const handleAnswer = (questionId: string, answer: QuizAnswer) => {
     console.log(`🔥 BUTTON CLICKED: ${questionId} = ${answer.value} | Screen: ${quizState.currentScreen}`);
     
-    let currentQuizId = localStorage.getItem('quiz_current_id');
-    
-    // FALLBACK: Create new quiz ID if missing (DON'T BLOCK UI)
-    if (!currentQuizId) {
-      console.log('🔥 NO QUIZ ID - CREATING NEW ONE');
-      currentQuizId = crypto.randomUUID();
-      localStorage.setItem('quiz_current_id', currentQuizId);
-      setQuizState(prev => ({ ...prev, quizId: currentQuizId }));
-    }
-
-    // UPDATE STATE IMMEDIATELY (non-blocking UI response)
-    setQuizState(prev => ({
-      ...prev,
-      answers: { ...prev.answers, [questionId]: answer.value }
-    }));
+    // IMMEDIATE STATE UPDATE - NEVER BLOCK
+    console.log('🔥 UPDATING STATE IMMEDIATELY');
     setSelectedAnswer(answer);
     setSoundTrigger("answer_select");
     
-    // Show revelation for first question
+    const newAnswers = { ...quizState.answers, [questionId]: answer.value };
+    setQuizState(prev => ({
+      ...prev,
+      answers: newAnswers
+    }));
+
+    // Get or create quizId for background operations
+    let currentQuizId = localStorage.getItem('quiz_current_id') || quizState.quizId;
+    if (!currentQuizId) {
+      currentQuizId = `quiz_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem('quiz_current_id', currentQuizId);
+      setQuizState(prev => ({ ...prev, quizId: currentQuizId }));
+      console.log('🔥 Created fallback quizId:', currentQuizId);
+    }
+
+    // Start background operations immediately (never await)
+    saveAnswerInBackground(currentQuizId, questionId, answer);
+    
+    // Check for special screens and show IMMEDIATELY
     if (questionId === "primary_desire") {
       console.log('🔥 SHOWING REVELATION SCREEN');
       setTimeout(() => {
@@ -234,80 +239,93 @@ export const useQuizLogic = () => {
         setShowRevelation(true);
         trackEvent('revelation_shown', { questionId, timestamp: new Date().toISOString() });
       }, 1000);
-      // Save in background (non-blocking)
-      saveAnswerInBackground(currentQuizId, questionId, answer);
       return;
     }
-    // Show pattern recognition for second question  
-    else if (questionId === "manifestation_frequency") {
+    
+    if (questionId === "manifestation_frequency") {
       console.log('🔥 SHOWING PATTERN SCREEN');
       setTimeout(() => {
         setSoundTrigger("pattern_detected");
         setShowPattern(true);
         trackEvent('pattern_shown', { questionId, timestamp: new Date().toISOString() });
         // Meta Pixel: Track pattern revealed
-        const pattern = getPatternText({ ...quizState.answers, [questionId]: answer.value });
+        const pattern = getPatternText(newAnswers);
         trackPatternRevealed(pattern);
       }, 1000);
-      // Save in background (non-blocking)
-      saveAnswerInBackground(currentQuizId, questionId, answer);
       return;
     }
-    // Show pre-email screen for third question
-    else if (questionId === "main_block") {
+    
+    if (questionId === "main_block") {
       console.log('🔥 SHOWING PRE-EMAIL SCREEN');
-      setTimeout(async () => {
+      setTimeout(() => {
         setShowPreEmail(true);
         trackEvent('pre_email_screen_shown', { timestamp: new Date().toISOString() });
-        await trackEmailScreenReached();
       }, 1000);
-      // Save in background (non-blocking)
-      saveAnswerInBackground(currentQuizId, questionId, answer);
       return;
     }
     
     // Default: continue to next screen
-    console.log('🔥 NO SPECIAL SCREEN - CONTINUING');
-    // Save in background (non-blocking)
-    saveAnswerInBackground(currentQuizId, questionId, answer);
+    console.log('🔥 NO SPECIAL SCREEN - ADVANCING TO NEXT');
+    setQuizState(prev => ({
+      ...prev,
+      currentScreen: prev.currentScreen + 1
+    }));
   };
 
-  // Background save function (non-blocking)
-  const saveAnswerInBackground = async (quizId: string, questionId: string, answer: QuizAnswer) => {
-    try {
-      console.log(`🔥 SAVING IN BACKGROUND: ${questionId} = ${answer.value}`);
-      
-      // Save answer to database
-      await saveQuizAnswers(quizId, { [questionId]: answer.value });
-      
-      // Map questionId to correct question number (1,2,3)
-      const questionNumberMap: Record<string, number> = {
-        'primary_desire': 1,
-        'manifestation_frequency': 2,
-        'main_block': 3
-      };
-      const questionNumber = questionNumberMap[questionId] || 1;
-      
-      // Track question progress with correct number
-      await trackQuestionProgress(questionNumber, questionId);
-      
-      // Track answer selection
-      trackEvent('quiz_answer', {
-        questionId,
-        answerId: answer.id,
-        answerValue: answer.value,
-        answerText: answer.text,
-        timestamp: new Date().toISOString()
-      });
-      
-      // Meta Pixel: Track quiz progress
-      trackQuizProgress(questionNumber, quizState.manifestationProfile);
-      
-      console.log(`🔥 BACKGROUND SAVE SUCCESS: ${questionId}`);
-    } catch (error) {
-      console.error(`🔥 BACKGROUND SAVE ERROR for ${questionId}:`, error);
-      // Don't block UI on save errors
-    }
+  // Background save function (completely non-blocking)
+  const saveAnswerInBackground = (quizId: string, questionId: string, answer: QuizAnswer) => {
+    console.log(`🔥 STARTING BACKGROUND SAVE: ${questionId} = ${answer.value}`);
+    
+    // Use setTimeout to ensure this never blocks the UI
+    setTimeout(async () => {
+      try {
+        // If we have a fallback quizId, try to create a real one for database
+        let validQuizId = quizId;
+        if (quizId.startsWith('quiz_')) {
+          console.log('🔥 Creating real quizId for database operations...');
+          const realQuizId = await trackPageView();
+          if (realQuizId) {
+            validQuizId = realQuizId;
+            localStorage.setItem('quiz_current_id', validQuizId);
+            setQuizState(prev => ({ ...prev, quizId: validQuizId }));
+            console.log('🔥 Real quizId created and updated:', validQuizId);
+          }
+        }
+        
+        // Save answer to database
+        await saveQuizAnswers(validQuizId, { [questionId]: answer.value });
+        console.log(`🔥 Answer saved to database: ${questionId}`);
+        
+        // Map questionId to correct question number (1,2,3)
+        const questionNumberMap: Record<string, number> = {
+          'primary_desire': 1,
+          'manifestation_frequency': 2,
+          'main_block': 3
+        };
+        const questionNumber = questionNumberMap[questionId] || 1;
+        
+        // Track question progress with correct number
+        await trackQuestionProgress(questionNumber, questionId);
+        console.log(`🔥 Progress tracked for question ${questionNumber}`);
+        
+        // Track answer selection
+        trackEvent('quiz_answer', {
+          questionId,
+          answerId: answer.id,
+          answerValue: answer.value,
+          answerText: answer.text,
+          timestamp: new Date().toISOString()
+        });
+        
+        // Meta Pixel: Track quiz progress
+        trackQuizProgress(questionNumber, quizState.manifestationProfile);
+        
+        console.log(`🔥 BACKGROUND SAVE COMPLETED SUCCESSFULLY: ${questionId}`);
+      } catch (error) {
+        console.error(`🔥 BACKGROUND SAVE ERROR for ${questionId}:`, error);
+        // Never throw or affect UI
+      }
+    }, 0);
   };
 
   const continueFromRevelation = () => {

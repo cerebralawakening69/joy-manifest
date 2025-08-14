@@ -45,7 +45,7 @@ export const useQuizLogic = () => {
       value: 18
     });
     
-    // Track page view and create initial record
+    // Create initial record with quizId immediately
     await trackPageView();
     
     setQuizState(prev => ({ ...prev, currentScreen: 1 }));
@@ -155,54 +155,45 @@ export const useQuizLogic = () => {
     // Get completion tracking data
     const completionData = getCompletionData();
     
-    // Save to database
+    // Save to database - Update existing record instead of creating new one
     try {
-      const { data: quizData, error } = await supabase
-        .from('quiz_manifestation')
-        .insert({
-          email,
-          name,
-          primary_desire: quizState.answers.primary_desire,
-          manifestation_frequency: quizState.answers.manifestation_frequency,
-          main_block: quizState.answers.main_block,
-          readiness_score: profile.details ? 75 : 50, // Simple scoring
-          manifestation_profile: profile.title,
-          // Tracking data
-          utm_source: completionData.utm_source,
-          utm_medium: completionData.utm_medium,
-          utm_campaign: completionData.utm_campaign,
-          utm_term: completionData.utm_term,
-          utm_content: completionData.utm_content,
-          user_agent: completionData.user_agent,
-          device_type: completionData.device_type,
-          referrer: completionData.referrer,
-          facebook_pixel_id: completionData.facebook_pixel_id,
-          bemob_click_id: completionData.bemob_click_id,
-          quiz_started_at: completionData.quiz_started_at,
-          quiz_completed_at: completionData.quiz_completed_at,
-          conversion_event_fired: true
-        })
-        .select()
-        .single();
+      if (quizState.quizId) {
+        // Update the existing record
+        await updateQuizRecord(quizState.quizId, email, name, profile, 75);
+        await saveQuizAnswers(quizState.quizId, quizState.answers);
+      } else {
+        // Fallback: create new record if somehow quizId is missing
+        const { data: quizData, error } = await supabase
+          .from('quiz_manifestation')
+          .insert({
+            email,
+            name,
+            primary_desire: quizState.answers.primary_desire,
+            manifestation_frequency: quizState.answers.manifestation_frequency,
+            main_block: quizState.answers.main_block,
+            readiness_score: 75,
+            manifestation_profile: profile.title,
+            quiz_completed_at: new Date().toISOString(),
+            conversion_event_fired: true
+          })
+          .select()
+          .single();
 
-      if (error) {
-        console.error('Error saving quiz result:', error);
-        toast({
-          title: "Error",
-          description: "Failed to save your results. Please try again.",
-          variant: "destructive"
-        });
-        return;
-      }
+        if (error) {
+          console.error('Error saving quiz result:', error);
+          toast({
+            title: "Error",
+            description: "Failed to save your results. Please try again.",
+            variant: "destructive"
+          });
+          return;
+        }
 
-        // Save detailed answers and store quiz ID for tracking
         if (quizData?.id) {
           await saveQuizAnswers(quizData.id, quizState.answers);
           setQuizState(prev => ({ ...prev, quizId: quizData.id }));
-          
-          // Update the existing record instead of creating a new one
-          await updateQuizRecord(quizData.id, email, name, profile, 75);
         }
+      }
 
       // Track quiz completion
       trackEvent('quiz_completed', {
@@ -254,33 +245,38 @@ export const useQuizLogic = () => {
 
   // Tracking functions for funnel analytics
   const trackPageView = async () => {
-    const trackingData = getCompletionData();
+    const completionData = getCompletionData();
     
     try {
-      const { error } = await supabase
+      const { data: quizData, error } = await supabase
         .from('quiz_manifestation')
         .insert({
           page_viewed_at: new Date().toISOString(),
-          utm_source: trackingData.utm_source,
-          utm_medium: trackingData.utm_medium,
-          utm_campaign: trackingData.utm_campaign,
-          utm_term: trackingData.utm_term,
-          utm_content: trackingData.utm_content,
-          user_agent: trackingData.user_agent,
-          device_type: trackingData.device_type,
-          referrer: trackingData.referrer,
-          facebook_pixel_id: trackingData.facebook_pixel_id,
-          bemob_click_id: trackingData.bemob_click_id,
-          user_ip: trackingData.user_ip,
+          quiz_started_at: new Date().toISOString(),
+          utm_source: completionData.utm_source,
+          utm_medium: completionData.utm_medium,
+          utm_campaign: completionData.utm_campaign,
+          utm_term: completionData.utm_term,
+          utm_content: completionData.utm_content,
+          user_agent: completionData.user_agent,
+          device_type: completionData.device_type,
+          referrer: completionData.referrer,
+          facebook_pixel_id: completionData.facebook_pixel_id,
+          bemob_click_id: completionData.bemob_click_id,
           primary_desire: 'unknown',
           manifestation_frequency: 'unknown',
           main_block: 'unknown',
           manifestation_profile: 'unknown',
           readiness_score: 0
-        });
+        })
+        .select()
+        .single();
 
       if (error) {
         console.error('Error tracking page view:', error);
+      } else if (quizData?.id) {
+        // Store the quiz ID immediately for tracking
+        setQuizState(prev => ({ ...prev, quizId: quizData.id }));
       }
     } catch (error) {
       console.error('Error tracking page view:', error);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { QuizState, QuizAnswer } from "@/types/quiz";
 import { quizQuestions, revelationTexts, getManifestationProfile, getPatternText } from "@/data/quizData";
 import { supabase } from "@/integrations/supabase/client";
@@ -129,15 +129,21 @@ export const useQuizLogic = () => {
 
   const submitEmailAndName = async (email: string, name: string) => {
     // Get quizId from state or localStorage
-    let currentQuizId = quizState.quizId || localStorage.getItem('quiz_current_id');
+    let currentQuizId = quizState.quizId;
+    if (!currentQuizId) {
+      currentQuizId = localStorage.getItem('quiz_current_id');
+      if (currentQuizId) {
+        setQuizState(prev => ({ ...prev, quizId: currentQuizId }));
+      }
+    }
     
     if (!currentQuizId) {
-      console.log('No quizId found, creating new record for email submission');
-      // Create new record if somehow we don't have one
+      console.log('⚠️ No quizId found, creating new record for email submission');
+      // Fallback: create new record if somehow we don't have one
       currentQuizId = await trackPageView();
       
       if (!currentQuizId) {
-        console.error('Failed to create quiz record for email submission');
+        console.error('❌ Failed to create quiz record for email submission');
         return;
       }
     }
@@ -229,18 +235,28 @@ export const useQuizLogic = () => {
     }
   };
 
-  const trackPageView = async () => {
+  const trackPageView = useCallback(async () => {
     try {
       // Check if we already have a quizId in localStorage
       const existingQuizId = localStorage.getItem('quiz_current_id');
       
       if (existingQuizId) {
-        console.log('Using existing quizId from localStorage:', existingQuizId);
-        setQuizState(prev => ({
-          ...prev,
-          quizId: existingQuizId
-        }));
-        return existingQuizId;
+        console.log('🔄 Using existing quizId from localStorage:', existingQuizId);
+        
+        // Check if this record exists in database
+        const { data: existingQuiz } = await supabase
+          .from('quiz_manifestation')
+          .select('id')
+          .eq('id', existingQuizId)
+          .single();
+        
+        if (existingQuiz) {
+          console.log('✅ Quiz record found in database, reusing existing record');
+          setQuizState(prev => ({ ...prev, quizId: existingQuizId }));
+          return existingQuizId;
+        } else {
+          console.log('⚠️ Quiz record not found in database, creating new one');
+        }
       }
 
       const completionData = getCompletionData();
@@ -270,7 +286,7 @@ export const useQuizLogic = () => {
         .single();
 
       if (error) {
-        console.error('Error tracking page view:', error);
+        console.error('❌ Error tracking page view:', error);
         return null;
       }
 
@@ -279,26 +295,29 @@ export const useQuizLogic = () => {
         localStorage.setItem('quiz_current_id', quizData.id);
         
         // Update React state
-        setQuizState(prev => ({
-          ...prev,
-          quizId: quizData.id
-        }));
+        setQuizState(prev => ({ ...prev, quizId: quizData.id }));
         
-        console.log('Page view tracked, new quizId created:', quizData.id);
+        console.log('✅ New quiz record created, quizId:', quizData.id);
         return quizData.id;
       }
     } catch (error) {
-      console.error('Error in trackPageView:', error);
+      console.error('❌ Error in trackPageView:', error);
       return null;
     }
-  };
+  }, [getCompletionData]);
 
   const trackQuestionProgress = async (questionNumber: number, questionId: string) => {
     // Get quizId from state or localStorage
-    const currentQuizId = quizState.quizId || localStorage.getItem('quiz_current_id');
+    let currentQuizId = quizState.quizId;
+    if (!currentQuizId) {
+      currentQuizId = localStorage.getItem('quiz_current_id');
+      if (currentQuizId) {
+        setQuizState(prev => ({ ...prev, quizId: currentQuizId }));
+      }
+    }
     
     if (!currentQuizId) {
-      console.log('No quizId available for tracking question progress');
+      console.error('❌ No quizId available for tracking question progress');
       return;
     }
 
@@ -318,12 +337,12 @@ export const useQuizLogic = () => {
         .eq('id', currentQuizId);
 
       if (error) {
-        console.error('Error tracking question progress:', error);
+        console.error('❌ Error tracking question progress:', error);
       } else {
-        console.log(`Question ${questionNumber} progress tracked for quiz ${currentQuizId}`);
+        console.log(`✅ Question ${questionNumber} progress tracked for quiz ${currentQuizId}`);
       }
     } catch (error) {
-      console.error('Error tracking question progress:', error);
+      console.error('❌ Error tracking question progress:', error);
     }
   };
 

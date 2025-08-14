@@ -39,12 +39,21 @@ const ManifestationQuiz = () => {
     trackResultViewed
   } = useQuizLogic();
 
-  // Clear localStorage on fresh page load (new session)
+  // Clear localStorage only for new sessions (not reloads)
   useEffect(() => {
-    // Clear previous quiz session data on initial load
-    localStorage.removeItem('quiz_current_id');
+    // Check if this is a new session
+    const sessionId = sessionStorage.getItem('quiz_session_id');
+    if (!sessionId) {
+      // New session - clear previous data and create new session ID
+      localStorage.removeItem('quiz_current_id');
+      sessionStorage.setItem('quiz_session_id', Date.now().toString());
+      console.log('🆕 New session detected, cleared localStorage');
+    } else {
+      console.log('🔄 Existing session, keeping localStorage data');
+    }
+    
     trackPageView();
-  }, [trackPageView]);
+  }, []); // Remove trackPageView from dependencies
 
   // Track email screen reached
   useEffect(() => {

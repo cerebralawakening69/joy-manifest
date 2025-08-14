@@ -206,12 +206,48 @@ export const useQuizLogic = () => {
   };
 
   const handleAnswer = async (questionId: string, answer: QuizAnswer) => {
+    console.log(`🎯 handleAnswer called for ${questionId} with value: ${answer.value}`);
+    
+    const currentQuizId = localStorage.getItem('quiz_current_id');
+    if (!currentQuizId) {
+      console.error('❌ No quizId available for saving answer');
+      return;
+    }
+
+    // Update state
     setQuizState(prev => ({
       ...prev,
       answers: { ...prev.answers, [questionId]: answer.value }
     }));
     setSelectedAnswer(answer);
     setSoundTrigger("answer_select");
+    
+    // CRITICAL: Save answer to database FIRST
+    try {
+      console.log(`💾 Saving answer to database: ${questionId} = ${answer.value}`);
+      await saveQuizAnswers(currentQuizId, { [questionId]: answer.value });
+      console.log(`✅ Answer saved successfully for ${questionId}`);
+    } catch (error) {
+      console.error(`❌ Failed to save answer for ${questionId}:`, error);
+    }
+    
+    // Map questionId to correct question number (1,2,3)
+    const questionNumberMap: Record<string, number> = {
+      'primary_desire': 1,
+      'manifestation_frequency': 2,
+      'main_block': 3
+    };
+    const questionNumber = questionNumberMap[questionId] || 1;
+    
+    console.log(`📊 Tracking progress for question ${questionNumber} (${questionId})`);
+    
+    // Track question progress with correct number
+    try {
+      await trackQuestionProgress(questionNumber, questionId);
+      console.log(`✅ Progress tracked for question ${questionNumber}`);
+    } catch (error) {
+      console.error(`❌ Failed to track progress for question ${questionNumber}:`, error);
+    }
     
     // Track answer selection
     trackEvent('quiz_answer', {
@@ -223,7 +259,6 @@ export const useQuizLogic = () => {
     });
     
     // Meta Pixel: Track quiz progress
-    const questionNumber = quizState.currentScreen;
     trackQuizProgress(questionNumber, quizState.manifestationProfile);
     
     // Show revelation for first question
@@ -241,7 +276,7 @@ export const useQuizLogic = () => {
         setShowPattern(true);
         trackEvent('pattern_shown', { questionId, timestamp: new Date().toISOString() });
         // Meta Pixel: Track pattern revealed
-        const pattern = getPatternText(quizState.answers);
+        const pattern = getPatternText({ ...quizState.answers, [questionId]: answer.value });
         trackPatternRevealed(pattern);
       }, 1000);
     }
@@ -253,11 +288,6 @@ export const useQuizLogic = () => {
         await trackEmailScreenReached();
       }, 1000);
     }
-    
-    // Track question progress after a short delay to ensure state is updated
-    setTimeout(() => {
-      trackQuestionProgress(quizState.currentScreen, questionId);
-    }, 200);
   };
 
   const continueFromRevelation = () => {
@@ -430,6 +460,8 @@ export const useQuizLogic = () => {
       window.open(affiliateLink, '_blank');
       return;
     }
+
+    console.log('🎬 VSL button clicked, tracking for quiz:', currentQuizId);
 
     // Update VSL click in database
     try {

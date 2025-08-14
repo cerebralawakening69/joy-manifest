@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuizLogic } from "@/hooks/useQuizLogic";
 import { QuizHookScreen } from "@/components/quiz/QuizHookScreen";
 import { QuizQuestionScreen } from "@/components/quiz/QuizQuestionScreen";
@@ -32,8 +33,30 @@ const ManifestationQuiz = () => {
     handleContinueToVSL,
     handleDiscoveryUnlock,
     closeDiscovery,
-    clearSoundTrigger
+    clearSoundTrigger,
+    trackPageView,
+    trackEmailScreenReached,
+    trackResultViewed
   } = useQuizLogic();
+
+  // Track page view when component mounts
+  useEffect(() => {
+    trackPageView();
+  }, [trackPageView]);
+
+  // Track email screen reached
+  useEffect(() => {
+    if (quizState.currentScreen === 4) {
+      trackEmailScreenReached();
+    }
+  }, [quizState.currentScreen, trackEmailScreenReached]);
+
+  // Track result viewed
+  useEffect(() => {
+    if (quizState.currentScreen === 5) {
+      trackResultViewed();
+    }
+  }, [quizState.currentScreen, trackResultViewed]);
 
   return (
     <div className="relative min-h-screen">

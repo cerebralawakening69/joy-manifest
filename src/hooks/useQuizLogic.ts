@@ -461,6 +461,9 @@ export const useQuizLogic = () => {
     handleContinueToVSL,
     handleDiscoveryUnlock,
     closeDiscovery,
-    clearSoundTrigger
+    clearSoundTrigger,
+    trackPageView,
+    trackEmailScreenReached,
+    trackResultViewed
   };
 };

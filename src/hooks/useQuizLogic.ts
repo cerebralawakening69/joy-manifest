@@ -128,72 +128,58 @@ export const useQuizLogic = () => {
   };
 
   const submitEmailAndName = async (email: string, name: string) => {
-    setQuizState(prev => ({ ...prev, email, name }));
+    // Get quizId from state or localStorage
+    let currentQuizId = quizState.quizId || localStorage.getItem('quiz_current_id');
     
-    // Track email submission
-    trackEvent('email_submitted', {
-      email,
-      name,
-      timestamp: new Date().toISOString()
-    });
-    
-    // Meta Pixel: Track lead conversion (main conversion event)
-    trackLead({
-      content_name: 'Manifestation Quiz Lead',
-      value: 18,
-      currency: 'USD',
-      custom_data: {
-        email,
-        name,
-        quiz_type: 'manifestation'
+    if (!currentQuizId) {
+      console.log('No quizId found, creating new record for email submission');
+      // Create new record if somehow we don't have one
+      currentQuizId = await trackPageView();
+      
+      if (!currentQuizId) {
+        console.error('Failed to create quiz record for email submission');
+        return;
       }
-    });
-    
+    }
+
     // Calculate final profile
     const profile = getManifestationProfile(quizState.answers);
-    
-    // Get completion tracking data
-    const completionData = getCompletionData();
-    
-    // Save to database - Update existing record instead of creating new one
+    const readinessScore = 75;
+
     try {
-      if (quizState.quizId) {
-        // Update the existing record
-        await updateQuizRecord(quizState.quizId, email, name, profile, 75);
-        await saveQuizAnswers(quizState.quizId, quizState.answers);
-      } else {
-        // Fallback: create new record if somehow quizId is missing
-        const { data: quizData, error } = await supabase
-          .from('quiz_manifestation')
-          .insert({
-            email,
-            name,
-            primary_desire: quizState.answers.primary_desire,
-            manifestation_frequency: quizState.answers.manifestation_frequency,
-            main_block: quizState.answers.main_block,
-            readiness_score: 75,
-            manifestation_profile: profile.title,
-            quiz_completed_at: new Date().toISOString(),
-            conversion_event_fired: true
-          })
-          .select()
-          .single();
+      // Update the existing record
+      await updateQuizRecord(currentQuizId, email, name, profile, readinessScore);
+      await saveQuizAnswers(currentQuizId, quizState.answers);
 
-        if (error) {
-          console.error('Error saving quiz result:', error);
-          toast({
-            title: "Error",
-            description: "Failed to save your results. Please try again.",
-            variant: "destructive"
-          });
-          return;
-        }
+      console.log('Email and name saved successfully for quiz:', currentQuizId);
 
-        if (quizData?.id) {
-          await saveQuizAnswers(quizData.id, quizState.answers);
-          setQuizState(prev => ({ ...prev, quizId: quizData.id }));
+      setQuizState(prev => ({
+        ...prev,
+        quizId: currentQuizId,
+        email,
+        name,
+        manifestationProfile: profile.title,
+        readinessScore
+      }));
+
+      // Track email submission
+      trackEvent('email_submitted', {
+        email,
+        name,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Meta Pixel: Track lead conversion (main conversion event)
+      trackLead({
+        content_name: 'Manifestation Quiz Lead',
+        value: 18,
+        currency: 'USD',
+        custom_data: {
+          email,
+          name,
+          quiz_type: 'manifestation'
         }
-      }
+      });
 
       // Track quiz completion
       trackEvent('quiz_completed', {
@@ -201,7 +187,7 @@ export const useQuizLogic = () => {
         email,
         name,
         answers: quizState.answers,
-        readinessScore: 75,
+        readinessScore,
         timestamp: new Date().toISOString()
       });
       
@@ -212,7 +198,7 @@ export const useQuizLogic = () => {
         currency: 'USD',
         custom_data: {
           manifestation_profile: profile.title,
-          readiness_score: 75
+          readiness_score: readinessScore
         }
       });
 
@@ -230,24 +216,35 @@ export const useQuizLogic = () => {
           ...prev, 
           currentScreen: 5,
           manifestationProfile: profile.title,
-          readinessScore: 75
+          readinessScore
         }));
       }, 1000);
     } catch (error) {
-      console.error('Unexpected error:', error);
+      console.error('Error in submitEmailAndName:', error);
       toast({
         title: "Error", 
-        description: "An unexpected error occurred. Please try again.",
+        description: "Failed to save your results. Please try again.",
         variant: "destructive"
       });
     }
   };
 
-  // Tracking functions for funnel analytics
   const trackPageView = async () => {
-    const completionData = getCompletionData();
-    
     try {
+      // Check if we already have a quizId in localStorage
+      const existingQuizId = localStorage.getItem('quiz_current_id');
+      
+      if (existingQuizId) {
+        console.log('Using existing quizId from localStorage:', existingQuizId);
+        setQuizState(prev => ({
+          ...prev,
+          quizId: existingQuizId
+        }));
+        return existingQuizId;
+      }
+
+      const completionData = getCompletionData();
+      
       const { data: quizData, error } = await supabase
         .from('quiz_manifestation')
         .insert({
@@ -269,23 +266,42 @@ export const useQuizLogic = () => {
           manifestation_profile: 'unknown',
           readiness_score: 0
         })
-        .select()
+        .select('id')
         .single();
 
       if (error) {
         console.error('Error tracking page view:', error);
-      } else if (quizData?.id) {
-        // Store the quiz ID immediately for tracking
-        setQuizState(prev => ({ ...prev, quizId: quizData.id }));
+        return null;
+      }
+
+      if (quizData?.id) {
+        // Store quizId in localStorage for persistence
+        localStorage.setItem('quiz_current_id', quizData.id);
+        
+        // Update React state
+        setQuizState(prev => ({
+          ...prev,
+          quizId: quizData.id
+        }));
+        
+        console.log('Page view tracked, new quizId created:', quizData.id);
+        return quizData.id;
       }
     } catch (error) {
-      console.error('Error tracking page view:', error);
+      console.error('Error in trackPageView:', error);
+      return null;
     }
   };
 
   const trackQuestionProgress = async (questionNumber: number, questionId: string) => {
-    if (!quizState.quizId) return;
+    // Get quizId from state or localStorage
+    const currentQuizId = quizState.quizId || localStorage.getItem('quiz_current_id');
     
+    if (!currentQuizId) {
+      console.log('No quizId available for tracking question progress');
+      return;
+    }
+
     try {
       const currentProgress = quizState.answers;
       const progressWithTimestamp = {
@@ -299,10 +315,12 @@ export const useQuizLogic = () => {
           last_question_reached: questionNumber,
           questions_progress: progressWithTimestamp
         })
-        .eq('id', quizState.quizId);
+        .eq('id', currentQuizId);
 
       if (error) {
         console.error('Error tracking question progress:', error);
+      } else {
+        console.log(`Question ${questionNumber} progress tracked for quiz ${currentQuizId}`);
       }
     } catch (error) {
       console.error('Error tracking question progress:', error);
@@ -310,18 +328,26 @@ export const useQuizLogic = () => {
   };
 
   const trackEmailScreenReached = async () => {
-    if (!quizState.quizId) return;
+    // Get quizId from state or localStorage
+    const currentQuizId = quizState.quizId || localStorage.getItem('quiz_current_id');
     
+    if (!currentQuizId) {
+      console.log('No quizId available for tracking email screen');
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('quiz_manifestation')
         .update({
           email_screen_reached_at: new Date().toISOString()
         })
-        .eq('id', quizState.quizId);
+        .eq('id', currentQuizId);
 
       if (error) {
         console.error('Error tracking email screen reached:', error);
+      } else {
+        console.log('Email screen reached tracked for quiz', currentQuizId);
       }
     } catch (error) {
       console.error('Error tracking email screen reached:', error);
@@ -329,18 +355,26 @@ export const useQuizLogic = () => {
   };
 
   const trackResultViewed = async () => {
-    if (!quizState.quizId) return;
+    // Get quizId from state or localStorage
+    const currentQuizId = quizState.quizId || localStorage.getItem('quiz_current_id');
     
+    if (!currentQuizId) {
+      console.log('No quizId available for tracking result viewed');
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('quiz_manifestation')
         .update({
           result_viewed_at: new Date().toISOString()
         })
-        .eq('id', quizState.quizId);
+        .eq('id', currentQuizId);
 
       if (error) {
         console.error('Error tracking result viewed:', error);
+      } else {
+        console.log('Result viewed tracked for quiz', currentQuizId);
       }
     } catch (error) {
       console.error('Error tracking result viewed:', error);
@@ -395,20 +429,30 @@ export const useQuizLogic = () => {
   };
 
   const handleContinueToVSL = async () => {
-    // Update VSL click in database using stored quiz ID
-    if (quizState.quizId) {
-      try {
-        await updateVSLClick(quizState.quizId);
-        console.log('VSL click tracked successfully');
-      } catch (error) {
-        console.error('Failed to track VSL click:', error);
-      }
+    // Get quizId from state or localStorage
+    const currentQuizId = quizState.quizId || localStorage.getItem('quiz_current_id');
+    
+    if (!currentQuizId) {
+      console.error('No quiz ID available for VSL tracking');
+      // Still allow user to continue to VSL even if tracking fails
+      const affiliateLink = getAffiliateLink();
+      window.open(affiliateLink, '_blank');
+      return;
+    }
+
+    // Update VSL click in database
+    try {
+      await updateVSLClick(currentQuizId);
+      console.log('VSL click tracked successfully for quiz:', currentQuizId);
+    } catch (error) {
+      console.error('Failed to track VSL click:', error);
     }
 
     // Track affiliate link click
     trackEvent('affiliate_link_clicked', {
       timestamp: new Date().toISOString(),
-      affiliateId: trackingData.affiliate_id
+      affiliateId: trackingData.affiliate_id,
+      quiz_id: currentQuizId
     });
     
     // Meta Pixel: Track initiate checkout (affiliate click)

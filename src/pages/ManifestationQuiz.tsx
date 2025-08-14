@@ -39,8 +39,10 @@ const ManifestationQuiz = () => {
     trackResultViewed
   } = useQuizLogic();
 
-  // Track page view when component mounts
+  // Clear localStorage on fresh page load (new session)
   useEffect(() => {
+    // Clear previous quiz session data on initial load
+    localStorage.removeItem('quiz_current_id');
     trackPageView();
   }, [trackPageView]);
 

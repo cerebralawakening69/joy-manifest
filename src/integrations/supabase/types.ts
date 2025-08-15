@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "13.0.4"
@@ -95,17 +95,22 @@ export type Database = {
           created_at: string | null
           device_type: string | null
           email: string | null
+          email_screen_reached_at: string | null
           facebook_pixel_id: string | null
           id: string
+          last_question_reached: number | null
           main_block: string
           manifestation_frequency: string
           manifestation_profile: string
           name: string | null
+          page_viewed_at: string | null
           primary_desire: string
+          questions_progress: Json | null
           quiz_completed_at: string | null
           quiz_started_at: string | null
           readiness_score: number
           referrer: string | null
+          result_viewed_at: string | null
           user_agent: string | null
           user_ip: unknown | null
           utm_campaign: string | null
@@ -113,6 +118,8 @@ export type Database = {
           utm_medium: string | null
           utm_source: string | null
           utm_term: string | null
+          vsl_click_count: number | null
+          vsl_clicked_at: string | null
         }
         Insert: {
           bemob_click_id?: string | null
@@ -120,17 +127,22 @@ export type Database = {
           created_at?: string | null
           device_type?: string | null
           email?: string | null
+          email_screen_reached_at?: string | null
           facebook_pixel_id?: string | null
           id?: string
+          last_question_reached?: number | null
           main_block: string
           manifestation_frequency: string
           manifestation_profile: string
           name?: string | null
+          page_viewed_at?: string | null
           primary_desire: string
+          questions_progress?: Json | null
           quiz_completed_at?: string | null
           quiz_started_at?: string | null
           readiness_score: number
           referrer?: string | null
+          result_viewed_at?: string | null
           user_agent?: string | null
           user_ip?: unknown | null
           utm_campaign?: string | null
@@ -138,6 +150,8 @@ export type Database = {
           utm_medium?: string | null
           utm_source?: string | null
           utm_term?: string | null
+          vsl_click_count?: number | null
+          vsl_clicked_at?: string | null
         }
         Update: {
           bemob_click_id?: string | null
@@ -145,17 +159,22 @@ export type Database = {
           created_at?: string | null
           device_type?: string | null
           email?: string | null
+          email_screen_reached_at?: string | null
           facebook_pixel_id?: string | null
           id?: string
+          last_question_reached?: number | null
           main_block?: string
           manifestation_frequency?: string
           manifestation_profile?: string
           name?: string | null
+          page_viewed_at?: string | null
           primary_desire?: string
+          questions_progress?: Json | null
           quiz_completed_at?: string | null
           quiz_started_at?: string | null
           readiness_score?: number
           referrer?: string | null
+          result_viewed_at?: string | null
           user_agent?: string | null
           user_ip?: unknown | null
           utm_campaign?: string | null
@@ -163,6 +182,8 @@ export type Database = {
           utm_medium?: string | null
           utm_source?: string | null
           utm_term?: string | null
+          vsl_click_count?: number | null
+          vsl_clicked_at?: string | null
         }
         Relationships: []
       }

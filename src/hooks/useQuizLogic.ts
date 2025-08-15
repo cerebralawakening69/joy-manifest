@@ -128,10 +128,59 @@ export const useQuizLogic = () => {
     // Calculate profile first
     const profile = getManifestationProfile(quizState.answers);
     
-    // SKIP ALL DATABASE OPERATIONS FOR NOW - just go to result screen
-    console.log('📧 SKIPPING DATABASE - going direct to result');
+    // Save to database
+    try {
+      const completionData = getCompletionData();
+      const userIP = await fetch('https://api.ipify.org?format=json')
+        .then(res => res.json())
+        .then(data => data.ip)
+        .catch(() => null);
+
+      const quizData = {
+        primary_desire: quizState.answers.primary_desire || 'unknown',
+        manifestation_frequency: quizState.answers.manifestation_frequency || 'unknown',
+        main_block: quizState.answers.main_block || 'unknown',
+        manifestation_profile: profile.title,
+        email: email,
+        name: name,
+        readiness_score: 75,
+        user_ip: userIP,
+        quiz_started_at: completionData.quiz_started_at,
+        quiz_completed_at: new Date().toISOString(),
+        email_screen_reached_at: new Date().toISOString(),
+        utm_source: trackingData.utm_source,
+        utm_medium: trackingData.utm_medium,
+        utm_campaign: trackingData.utm_campaign,
+        utm_content: trackingData.utm_content,
+        utm_term: trackingData.utm_term,
+        facebook_pixel_id: trackingData.facebook_pixel_id,
+        bemob_click_id: trackingData.bemob_click_id,
+        user_agent: navigator.userAgent,
+        referrer: trackingData.referrer
+      };
+
+      console.log('💾 Inserting quiz data:', quizData);
+
+      const { error } = await supabase
+        .from('quiz_manifestation')
+        .insert([quizData]);
+
+      if (error) {
+        console.error('❌ Database error:', error);
+        throw error;
+      }
+
+      console.log('✅ Quiz data saved successfully!');
+      
+      // Save answers to database
+      await saveQuizAnswers(quizData.manifestation_profile, quizState.answers);
+
+    } catch (error) {
+      console.error('❌ Error saving quiz data:', error);
+      // Continue anyway - don't block user experience
+    }
     
-    // Track events (these are safe)
+    // Track events
     try {
       trackEvent('email_submitted', { email, name, timestamp: new Date().toISOString() });
       trackLead({
@@ -151,7 +200,7 @@ export const useQuizLogic = () => {
     
     setSoundTrigger("email_success");
     
-    // Go directly to result screen
+    // Go to result screen
     setTimeout(() => {
       setSoundTrigger("final_reveal");
       setQuizState(prev => ({ 

@@ -84,7 +84,8 @@ export const useQuizLogic = () => {
         setShowPattern(true);
         trackEvent('pattern_shown', { questionId, timestamp: new Date().toISOString() });
         // Meta Pixel: Track pattern revealed
-        const pattern = getPatternText(quizState.answers);
+        const newAnswers = { ...quizState.answers, [questionId]: answer.value };
+        const pattern = getPatternText(newAnswers);
         trackPatternRevealed(pattern);
       }, 1000);
     }

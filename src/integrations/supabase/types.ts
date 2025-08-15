@@ -14,81 +14,40 @@ export type Database = {
   }
   public: {
     Tables: {
-      admin_users: {
+      quiz_answers_backup: {
         Row: {
-          created_at: string
-          email: string
-          id: string
-          last_login: string | null
-          name: string | null
-          password_hash: string
-          role: string | null
-          updated_at: string
+          answer_id: string | null
+          answer_text: string | null
+          answer_value: string | null
+          answered_at: string | null
+          created_at: string | null
+          id: string | null
+          question_id: string | null
+          quiz_id: string | null
         }
         Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          last_login?: string | null
-          name?: string | null
-          password_hash: string
-          role?: string | null
-          updated_at?: string
+          answer_id?: string | null
+          answer_text?: string | null
+          answer_value?: string | null
+          answered_at?: string | null
+          created_at?: string | null
+          id?: string | null
+          question_id?: string | null
+          quiz_id?: string | null
         }
         Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          last_login?: string | null
-          name?: string | null
-          password_hash?: string
-          role?: string | null
-          updated_at?: string
+          answer_id?: string | null
+          answer_text?: string | null
+          answer_value?: string | null
+          answered_at?: string | null
+          created_at?: string | null
+          id?: string | null
+          question_id?: string | null
+          quiz_id?: string | null
         }
         Relationships: []
       }
-      quiz_answers: {
-        Row: {
-          answer_id: string
-          answer_text: string
-          answer_value: string
-          answered_at: string
-          created_at: string
-          id: string
-          question_id: string
-          quiz_id: string
-        }
-        Insert: {
-          answer_id: string
-          answer_text: string
-          answer_value: string
-          answered_at?: string
-          created_at?: string
-          id?: string
-          question_id: string
-          quiz_id: string
-        }
-        Update: {
-          answer_id?: string
-          answer_text?: string
-          answer_value?: string
-          answered_at?: string
-          created_at?: string
-          id?: string
-          question_id?: string
-          quiz_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "quiz_answers_quiz_id_fkey"
-            columns: ["quiz_id"]
-            isOneToOne: false
-            referencedRelation: "quiz_manifestation"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      quiz_manifestation: {
+      quiz_manifestation_backup: {
         Row: {
           bemob_click_id: string | null
           conversion_event_fired: boolean | null
@@ -97,18 +56,18 @@ export type Database = {
           email: string | null
           email_screen_reached_at: string | null
           facebook_pixel_id: string | null
-          id: string
+          id: string | null
           last_question_reached: number | null
-          main_block: string
-          manifestation_frequency: string
-          manifestation_profile: string
+          main_block: string | null
+          manifestation_frequency: string | null
+          manifestation_profile: string | null
           name: string | null
           page_viewed_at: string | null
-          primary_desire: string
+          primary_desire: string | null
           questions_progress: Json | null
           quiz_completed_at: string | null
           quiz_started_at: string | null
-          readiness_score: number
+          readiness_score: number | null
           referrer: string | null
           result_viewed_at: string | null
           user_agent: string | null
@@ -129,18 +88,18 @@ export type Database = {
           email?: string | null
           email_screen_reached_at?: string | null
           facebook_pixel_id?: string | null
-          id?: string
+          id?: string | null
           last_question_reached?: number | null
-          main_block: string
-          manifestation_frequency: string
-          manifestation_profile: string
+          main_block?: string | null
+          manifestation_frequency?: string | null
+          manifestation_profile?: string | null
           name?: string | null
           page_viewed_at?: string | null
-          primary_desire: string
+          primary_desire?: string | null
           questions_progress?: Json | null
           quiz_completed_at?: string | null
           quiz_started_at?: string | null
-          readiness_score: number
+          readiness_score?: number | null
           referrer?: string | null
           result_viewed_at?: string | null
           user_agent?: string | null
@@ -161,20 +120,119 @@ export type Database = {
           email?: string | null
           email_screen_reached_at?: string | null
           facebook_pixel_id?: string | null
-          id?: string
+          id?: string | null
           last_question_reached?: number | null
-          main_block?: string
-          manifestation_frequency?: string
-          manifestation_profile?: string
+          main_block?: string | null
+          manifestation_frequency?: string | null
+          manifestation_profile?: string | null
           name?: string | null
           page_viewed_at?: string | null
-          primary_desire?: string
+          primary_desire?: string | null
           questions_progress?: Json | null
           quiz_completed_at?: string | null
           quiz_started_at?: string | null
-          readiness_score?: number
+          readiness_score?: number | null
           referrer?: string | null
           result_viewed_at?: string | null
+          user_agent?: string | null
+          user_ip?: unknown | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          vsl_click_count?: number | null
+          vsl_clicked_at?: string | null
+        }
+        Relationships: []
+      }
+      quiz_submissions: {
+        Row: {
+          answers: Json | null
+          bemob_click_id: string | null
+          created_at: string | null
+          current_question: number | null
+          email: string | null
+          email_submitted_at: string | null
+          facebook_pixel_id: string | null
+          id: string
+          main_block: string | null
+          manifestation_frequency: string | null
+          manifestation_profile: string | null
+          name: string | null
+          primary_desire: string | null
+          questions_completed: number | null
+          quiz_completed: boolean | null
+          quiz_completed_at: string | null
+          quiz_started_at: string | null
+          readiness_score: number | null
+          referrer: string | null
+          result_viewed_at: string | null
+          session_id: string | null
+          user_agent: string | null
+          user_ip: unknown | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+          vsl_click_count: number | null
+          vsl_clicked_at: string | null
+        }
+        Insert: {
+          answers?: Json | null
+          bemob_click_id?: string | null
+          created_at?: string | null
+          current_question?: number | null
+          email?: string | null
+          email_submitted_at?: string | null
+          facebook_pixel_id?: string | null
+          id?: string
+          main_block?: string | null
+          manifestation_frequency?: string | null
+          manifestation_profile?: string | null
+          name?: string | null
+          primary_desire?: string | null
+          questions_completed?: number | null
+          quiz_completed?: boolean | null
+          quiz_completed_at?: string | null
+          quiz_started_at?: string | null
+          readiness_score?: number | null
+          referrer?: string | null
+          result_viewed_at?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_ip?: unknown | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          vsl_click_count?: number | null
+          vsl_clicked_at?: string | null
+        }
+        Update: {
+          answers?: Json | null
+          bemob_click_id?: string | null
+          created_at?: string | null
+          current_question?: number | null
+          email?: string | null
+          email_submitted_at?: string | null
+          facebook_pixel_id?: string | null
+          id?: string
+          main_block?: string | null
+          manifestation_frequency?: string | null
+          manifestation_profile?: string | null
+          name?: string | null
+          primary_desire?: string | null
+          questions_completed?: number | null
+          quiz_completed?: boolean | null
+          quiz_completed_at?: string | null
+          quiz_started_at?: string | null
+          readiness_score?: number | null
+          referrer?: string | null
+          result_viewed_at?: string | null
+          session_id?: string | null
           user_agent?: string | null
           user_ip?: unknown | null
           utm_campaign?: string | null

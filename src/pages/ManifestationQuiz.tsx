@@ -1,4 +1,7 @@
+// src/pages/ManifestationQuiz.tsx
+import { useEffect, useCallback } from "react"; // ✅ COLEI AQUI
 import { useQuizLogic } from "@/hooks/useQuizLogic";
+import { api, getSessionId } from "@/integrations/backend/client";
 import { QuizHookScreen } from "@/components/quiz/QuizHookScreen";
 import { QuizQuestionScreen } from "@/components/quiz/QuizQuestionScreen";
 import { QuizRevelationScreen } from "@/components/quiz/QuizRevelationScreen";
@@ -35,6 +38,34 @@ const ManifestationQuiz = () => {
     clearSoundTrigger
   } = useQuizLogic();
 
+  // ✅ LANDING: registra entrada no funil
+  useEffect(() => {
+    const sid = getSessionId(); // cria/pega um session_id estável
+
+    const p = new URLSearchParams(window.location.search);
+    const variant = p.get("var") || p.get("flow") || "A";
+
+    api.landing({
+      session_id: sid,
+      variant,
+      utm_source: p.get("utm_source") || "",
+      utm_medium: p.get("utm_medium") || "",
+      utm_campaign: p.get("utm_campaign") || "",
+      utm_content: p.get("utm_content") || "",
+      utm_term: p.get("utm_term") || "",
+      referrer: document.referrer || "",
+      user_agent: navigator.userAgent || "",
+    });
+  }, []);
+
+  // ✅ COMEÇOU O QUIZ: chama API e depois inicia fluxo
+  const handleStart = useCallback(() => {
+    try {
+      api.startQuiz({ session_id: getSessionId() });
+    } catch {}
+    startQuiz();
+  }, [startQuiz]);
+
   return (
     <div className="relative min-h-screen">
       {/* Gamification Elements */}
@@ -61,7 +92,8 @@ const ManifestationQuiz = () => {
       {/* Hook Screen */}
       {quizState.currentScreen === 0 && !showRevelation && !showPattern && !showPreEmail && (
         <div key="hook-screen" className="animate-fade-in">
-          <QuizHookScreen onStart={startQuiz} />
+          {/* ⬇️ troquei startQuiz por handleStart */}
+          <QuizHookScreen onStart={handleStart} />
         </div>
       )}
 

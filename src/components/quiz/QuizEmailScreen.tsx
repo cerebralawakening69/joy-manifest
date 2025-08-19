@@ -12,6 +12,7 @@ interface QuizEmailScreenProps {
 }
 
 export const QuizEmailScreen = ({ onSubmit, currentScreen }: QuizEmailScreenProps) => {
+  const [showTerms, setShowTerms] = useState(false);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
 
@@ -76,11 +77,80 @@ export const QuizEmailScreen = ({ onSubmit, currentScreen }: QuizEmailScreenProp
             >
               CLAIM MY $18 GIFT →
             </Button>
+            <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed -mt-2">
+  By submitting, you agree to receive your <span className="font-medium">diagnosis result</span> by email
+  and accept our{" "}
+  <button
+    type="button"
+    onClick={() => setShowTerms(true)}
+    className="underline underline-offset-4 hover:text-golden"
+  >
+    Terms of Service
+  </button>{" "}
+  and{" "}
+  <button
+    type="button"
+    onClick={() => setShowTerms(true)}
+    className="underline underline-offset-4 hover:text-golden"
+  >
+    Privacy Policy
+  </button>. You can unsubscribe at any time.
+</p>
           </form>
           
           <p className="text-xs sm:text-sm text-muted-foreground mt-4 sm:mt-6 px-2">
             🔒 100% private. Unsubscribe anytime.
           </p>
+          {/* Modal - Terms */}
+{showTerms && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div className="w-full max-w-2xl rounded-2xl bg-background shadow-xl border border-border">
+      <div className="flex items-center justify-between px-5 py-4 border-b">
+        <h3 className="text-lg sm:text-xl font-semibold">Terms of Service & Privacy Policy</h3>
+        <button
+          aria-label="Close"
+          onClick={() => setShowTerms(false)}
+          className="rounded-full px-3 py-1 text-sm hover:bg-muted"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div className="max-h-[70vh] overflow-y-auto px-5 py-4 space-y-4 text-sm leading-relaxed">
+        <p>
+          <strong>Email collection:</strong> we use your email to send your quiz diagnosis result,
+          related communications, and supporting materials. You can unsubscribe at any time via the link in our emails.
+        </p>
+        <p>
+          <strong>Legal basis:</strong> your consent. By submitting, you agree to the processing of your data
+          for the purposes described here.
+        </p>
+        <p>
+          <strong>Storage:</strong> your data may be processed by our email service and CRM providers, securely.
+        </p>
+        <p>
+          <strong>Your rights:</strong> you can request access, correction, or deletion by replying to any of our emails.
+        </p>
+        <p>
+          <strong>Contact:</strong> questions? Reach us at <a href="mailto:cerebralawakening69@gmail.com" className="underline">cerebralawakening69@gmail.com</a>.
+        </p>
+      </div>
+
+      <div className="px-5 py-4 border-t flex justify-end gap-2">
+        <button
+          onClick={() => setShowTerms(false)}
+          className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:opacity-90"
+        >
+          Got it
+        </button>
+      </div>
+    </div>
+  </div>
+)}
         </Card>
       </div>
     </div>

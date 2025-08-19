@@ -25,7 +25,7 @@ export const QuizPreEmailScreen = ({ onContinue, currentScreen }: QuizPreEmailSc
             YOU'RE JUST 1 STEP AWAY
           </h1>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 sm:mb-8 text-primary leading-tight">
-            FROM YOUR MYSTERIOUS $18 GIFT!
+            FROM YOUR MYSTERIOUS GIFT!
           </h1>
           
           <div className="space-y-4 sm:space-y-6 mb-8 sm:mb-10">

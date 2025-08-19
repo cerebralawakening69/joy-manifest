@@ -1,5 +1,5 @@
 // src/pages/ManifestationQuiz.tsx
-import { useEffect, useCallback } from "react"; // ✅ COLEI AQUI
+import { useEffect, useCallback } from "react";
 import { useQuizLogic } from "@/hooks/useQuizLogic";
 import { api, getSessionId } from "@/integrations/backend/client";
 import { QuizHookScreen } from "@/components/quiz/QuizHookScreen";
@@ -32,7 +32,6 @@ const ManifestationQuiz = () => {
     getRevelationText,
     getPatternDescription,
     getFinalProfile,
-    handleContinueToVSL,
     handleDiscoveryUnlock,
     closeDiscovery,
     clearSoundTrigger
@@ -92,7 +91,6 @@ const ManifestationQuiz = () => {
       {/* Hook Screen */}
       {quizState.currentScreen === 0 && !showRevelation && !showPattern && !showPreEmail && (
         <div key="hook-screen" className="animate-fade-in">
-          {/* ⬇️ troquei startQuiz por handleStart */}
           <QuizHookScreen onStart={handleStart} />
         </div>
       )}
@@ -159,10 +157,7 @@ const ManifestationQuiz = () => {
       {/* Result Screen */}
       {quizState.currentScreen === 5 && !showRevelation && !showPattern && !showPreEmail && (
         <div key="result-screen" className="animate-fade-in">
-          <QuizResultScreen
-            profile={getFinalProfile()}
-            onContinue={handleContinueToVSL}
-          />
+          <QuizResultScreen profile={getFinalProfile()} />
         </div>
       )}
     </div>

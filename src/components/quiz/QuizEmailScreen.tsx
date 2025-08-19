@@ -34,12 +34,12 @@ export const QuizEmailScreen = ({ onSubmit, currentScreen }: QuizEmailScreenProp
           <div className="text-3xl sm:text-4xl mb-4 sm:mb-6 animate-float">🎁</div>
           
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-golden leading-tight">
-            YOUR $18 GIFT IS READY!
+            YOUR GIFT IS READY!
           </h2>
           
           <p className="text-base sm:text-lg mb-6 sm:mb-8 text-muted-foreground leading-relaxed px-2">
             Your complete manifestation diagnosis + our bestselling book 
-            <span className="text-golden font-bold"> 'The Manifestation Code'</span> ($18 value) are waiting!
+            <span className="text-golden font-bold"> 'The Manifestation Code'</span> are waiting!
           </p>
           
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">

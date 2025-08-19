@@ -40,7 +40,7 @@ export const QuizPreEmailScreen = ({ onContinue, currentScreen }: QuizPreEmailSc
             
             <div className="bg-golden/10 border border-golden/20 rounded-lg p-4 sm:p-5">
               <p className="text-lg sm:text-xl font-semibold text-golden mb-2">
-                🎁 Secret Material + Mysterious $18 Gift
+                🎁 Secret Material + Mysterious Gift
               </p>
               <p className="text-sm sm:text-base text-muted-foreground">
                 Exclusive content that's never been shared publicly before

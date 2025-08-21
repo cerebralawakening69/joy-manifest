@@ -53,7 +53,7 @@ export const QuizPreEmailScreen = ({ onContinue, currentScreen }: QuizPreEmailSc
               📧 <strong>We need your email to unlock:</strong>
             </p>
             <p className="text-sm sm:text-base text-muted-foreground mt-2">
-              Your personalized profile + secret $18 manifestation gift that others pay hundreds for
+              Your personalized profile + secret manifestation gift that others pay hundreds for
             </p>
           </div>
           

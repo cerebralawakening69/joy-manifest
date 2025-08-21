@@ -62,7 +62,7 @@ export const QuizPreEmailScreen = ({ onContinue, currentScreen }: QuizPreEmailSc
             size="xl"
             className="w-full font-bold text-base sm:text-lg"
           >
-            UNLOCK MY $18 GIFT NOW 🎁
+            UNLOCK MY GIFT NOW 🎁
           </Button>
           
           <p className="text-xs sm:text-sm text-muted-foreground mt-4">

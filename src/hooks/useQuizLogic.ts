@@ -1,22 +1,27 @@
+// src/hooks/useQuizLogic.ts
 import { useState } from "react";
-import { api, getSessionId } from "@/integrations/backend/client";
 import { QuizState, QuizAnswer } from "@/types/quiz";
-import { quizQuestions, revelationTexts, getManifestationProfile, getPatternText } from "@/data/quizData";
+import {
+  quizQuestions,
+  revelationTexts,
+  getManifestationProfile,
+  getPatternText,
+} from "@/data/quizData";
 import { useToast } from "@/hooks/use-toast";
 import { useTracking } from "@/hooks/useTracking";
 import { useMetaPixel } from "@/hooks/useMetaPixel";
 
 export const useQuizLogic = () => {
   const { toast } = useToast();
-  const { trackingData, startQuizTracking, getCompletionData, getAffiliateLink, trackEvent } = useTracking();
-  const { 
-    trackQuizStarted, 
-    trackQuizProgress, 
-    trackLead, 
-    trackCompleteRegistration, 
-    trackViewContent, 
+  const t = useTracking(); // -> fornece trackStartQuiz, trackQuestionShown, trackAnswerSubmitted, trackEmailSubmitted, trackResultShown, trackCompleteQuiz
+  const {
+    trackQuizStarted,
+    trackQuizProgress,
+    trackLead,
+    trackCompleteRegistration,
+    trackViewContent,
     trackInitiateCheckout,
-    trackPatternRevealed 
+    trackPatternRevealed,
   } = useMetaPixel();
 
   const [quizState, setQuizState] = useState<QuizState>({
@@ -25,7 +30,7 @@ export const useQuizLogic = () => {
     email: "",
     name: "",
     manifestationProfile: "",
-    readinessScore: 0
+    readinessScore: 0,
   });
 
   const [showRevelation, setShowRevelation] = useState(false);
@@ -35,53 +40,51 @@ export const useQuizLogic = () => {
   const [soundTrigger, setSoundTrigger] = useState<string | null>(null);
   const [currentDiscovery, setCurrentDiscovery] = useState<any>(null);
 
-  // === COMEÇOU O QUIZ ===
+  // === COMEÇAR O QUIZ ===
   const startQuiz = () => {
-    // back-end: marca início do quiz
-    try { api.startQuiz({ session_id: getSessionId() }); } catch {}
-    // tracking local
-    startQuizTracking();
-    trackEvent("quiz_started", { timestamp: new Date().toISOString() });
+    // tracking (Sheets/Apps Script)
+    t.trackStartQuiz(1);
+    t.trackQuestionShown(1);
+
+    // Meta Pixel opcional
     trackQuizStarted({
       content_name: "Manifestation Quiz",
       content_category: "Quiz",
       value: 18,
     });
-    setQuizState(prev => ({ ...prev, currentScreen: 1 }));
+
+    // UI
+    setQuizState((prev) => ({ ...prev, currentScreen: 1 }));
   };
 
-  // === RESPOSTA ===
+  // === RESPOSTA DE UMA PERGUNTA ===
   const handleAnswer = (questionId: string, answer: QuizAnswer) => {
-    setQuizState(prev => ({
+    // atualiza estado de respostas
+    setQuizState((prev) => ({
       ...prev,
-      answers: { ...prev.answers, [questionId]: answer.value }
+      answers: { ...prev.answers, [questionId]: answer.value },
     }));
+
     setSelectedAnswer(answer);
     setSoundTrigger("answer_select");
-    
-    trackEvent("quiz_answer", {
-      questionId,
-      answerId: answer.id,
-      answerValue: answer.value,
-      answerText: answer.text,
-      timestamp: new Date().toISOString(),
-    });
 
-    const questionNumber = quizState.currentScreen;
-    trackQuizProgress(questionNumber, quizState.manifestationProfile);
-    
-    // Efeitos por pergunta
+    // número da pergunta atual (antes de ir para a próxima)
+    const qIndex = quizState.currentScreen || 1;
+
+    // tracking do funil
+    t.trackAnswerSubmitted(qIndex, questionId, answer.value);
+    trackQuizProgress(qIndex, quizState.manifestationProfile);
+
+    // efeitos visuais/sons por pergunta
     if (questionId === "primary_desire") {
       setTimeout(() => {
         setSoundTrigger("revelation");
         setShowRevelation(true);
-        trackEvent("revelation_shown", { questionId, timestamp: new Date().toISOString() });
       }, 1000);
     } else if (questionId === "manifestation_frequency") {
       setTimeout(() => {
         setSoundTrigger("pattern_detected");
         setShowPattern(true);
-        trackEvent("pattern_shown", { questionId, timestamp: new Date().toISOString() });
         const newAnswers = { ...quizState.answers, [questionId]: answer.value };
         const pattern = getPatternText(newAnswers);
         trackPatternRevealed(pattern);
@@ -89,25 +92,27 @@ export const useQuizLogic = () => {
     } else if (questionId === "main_block") {
       setTimeout(() => {
         setShowPreEmail(true);
-        trackEvent("pre_email_screen_shown", { timestamp: new Date().toISOString() });
       }, 1000);
     }
   };
 
+  // === CONTINUAÇÕES ENTRE TELAS ===
   const continueFromRevelation = () => {
     setShowRevelation(false);
-    setQuizState(prev => ({ ...prev, currentScreen: 2 }));
+    setQuizState((prev) => ({ ...prev, currentScreen: 2 }));
+    t.trackQuestionShown(2);
   };
 
   const continueFromPattern = () => {
     setShowPattern(false);
-    setQuizState(prev => ({ ...prev, currentScreen: 3 }));
+    setQuizState((prev) => ({ ...prev, currentScreen: 3 }));
+    t.trackQuestionShown(3);
   };
 
   const continueFromPreEmail = () => {
     setShowPreEmail(false);
-    setQuizState(prev => ({ ...prev, currentScreen: 4 }));
-    trackEvent("email_screen_reached", { timestamp: new Date().toISOString() });
+    setQuizState((prev) => ({ ...prev, currentScreen: 4 }));
+    // view de tela de captura (Meta Pixel)
     trackViewContent({
       content_name: "Email Collection Screen",
       content_category: "Lead Generation",
@@ -115,78 +120,64 @@ export const useQuizLogic = () => {
     });
   };
 
-  // === LEAD (EMAIL + NOME) ===
+  // === ENVIO DE EMAIL + NOME (LEAD) ===
   const submitEmailAndName = async (email: string, name: string) => {
     try {
-      // Atualiza estado
-      setQuizState(prev => ({ ...prev, email, name }));
+      // atualiza estado local
+      setQuizState((prev) => ({ ...prev, email, name }));
 
-      // Calcula perfil + coleta meta
+      // calcula perfil com as respostas atuais
       const profile = getManifestationProfile(quizState.answers);
-      const completionData = getCompletionData();
 
-      // IP é nice-to-have; se falhar, ignora
-      const userIP = await fetch("https://api.ipify.org?format=json")
-        .then(res => res.json())
-        .then(data => data.ip)
-        .catch(() => null);
+      // grava no Sheets (Apps Script) — 1 chamada resolve tudo
+      await t.trackEmailSubmitted(email, name, profile.title, quizState.answers);
 
-      // Envia pro Sheets (Apps Script) — UMA CHAMADA resolve (email + respostas)
-      await api.emailSubmitted({
-        session_id: getSessionId(),
-        email,
-        name,
-        profileTitle: profile.title,
-        answers: quizState.answers,
-        // extras úteis (o Apps Script ignora o que não usar)
-        utm_source: trackingData.utm_source,
-        utm_medium: trackingData.utm_medium,
-        utm_campaign: trackingData.utm_campaign,
-        utm_content: trackingData.utm_content,
-        utm_term: trackingData.utm_term,
-        user_agent: navigator.userAgent,
-        referrer: trackingData.referrer,
-        user_ip: userIP,
-        completionData,
-      });
-
-      // Tracking de marketing
-      trackEvent("email_submitted", { email, name, timestamp: new Date().toISOString() });
+      // marketing pixels (opcional)
       trackLead({
         content_name: "Manifestation Quiz Lead",
         value: 18,
         currency: "USD",
         custom_data: { email, name, quiz_type: "manifestation" },
       });
+      trackCompleteRegistration?.({}); // se existir na sua lib
 
-      // UI feedback
-      const readinessScore = 75; // se tiver lógica real, troca aqui
-      toast({ title: "Success!", description: "Your manifestation profile has been revealed!" });
+      // feedback UI
+      const readinessScore = 75; // ajuste se tiver fórmula real
+      toast({
+        title: "Success!",
+        description: "Your manifestation profile has been revealed!",
+      });
       setSoundTrigger("email_success");
 
-      // Vai para a tela de resultado
+      // mostra resultado (e marca no funil)
       setTimeout(() => {
         setSoundTrigger("final_reveal");
-        setQuizState(prev => ({
+        setQuizState((prev) => ({
           ...prev,
           currentScreen: 5,
           manifestationProfile: profile.title,
           readinessScore,
         }));
+        t.trackResultShown(profile.title);
+        // se você considera o resultado como fim do funil:
+        t.trackCompleteQuiz();
       }, 1000);
     } catch (error) {
       console.error("❌ Error on emailSubmitted:", error);
-      // Mesmo falhando, segue o fluxo pra não travar o usuário
+      // segue o fluxo mesmo se a chamada falhar
       const profile = getManifestationProfile(quizState.answers);
-      setQuizState(prev => ({
+      setQuizState((prev) => ({
         ...prev,
         currentScreen: 5,
         manifestationProfile: profile.title,
         readinessScore: 75,
       }));
+      t.trackResultShown(profile.title);
+      t.trackCompleteQuiz();
     }
   };
 
+  // === UTILS DE UI/CONTEÚDO ===
   const getCurrentQuestion = () => {
     const questionIndex = quizState.currentScreen - 1;
     return quizQuestions[questionIndex];
@@ -195,7 +186,7 @@ export const useQuizLogic = () => {
   const getRevelationText = () => {
     if (!selectedAnswer) return "";
     const questionId = getCurrentQuestion()?.id;
-    const revelationFn = revelationTexts[questionId];
+    const revelationFn = revelationTexts[questionId as keyof typeof revelationTexts];
     return revelationFn ? revelationFn(selectedAnswer.value) : "";
   };
 
@@ -207,34 +198,21 @@ export const useQuizLogic = () => {
     return getManifestationProfile(quizState.answers);
   };
 
-  // === CLIQUE NA VSL ===
+  // === CTA FINAL (sem abrir VSL no quiz; link vai por e-mail) ===
   const handleContinueToVSL = () => {
-    // tracking próprio
-    trackEvent("affiliate_link_clicked", {
-      timestamp: new Date().toISOString(),
-      affiliateId: trackingData.affiliate_id,
+    // Só feedback + marca conclusão
+    toast({
+      title: "Confira seu e-mail 📬",
+      description: "Enviamos o link do vídeo para o seu e-mail.",
     });
-
-    // Meta Pixel
-    trackInitiateCheckout({
+    t.trackCompleteQuiz();
+    // Se quiser acionar algum pixel de intenção:
+    trackInitiateCheckout?.({
       content_name: "Affiliate Product",
       value: 18,
       currency: "USD",
-      custom_data: {
-        affiliate_id: trackingData.affiliate_id,
-        source: "quiz_completion",
-      },
+      custom_data: { source: "quiz_completion" },
     });
-
-    // back-end: registra clique (usa sendBeacon no client, não bloqueia)
-    try {
-      const affiliateLink = getAffiliateLink();
-      api.vslClick({ session_id: getSessionId(), vsl_url: affiliateLink });
-      window.open(affiliateLink, "_blank");
-    } catch {
-      const fallbackLink = getAffiliateLink();
-      window.open(fallbackLink, "_blank");
-    }
   };
 
   const handleDiscoveryUnlock = (discovery: any) => {
@@ -242,13 +220,8 @@ export const useQuizLogic = () => {
     setSoundTrigger("achievement");
   };
 
-  const closeDiscovery = () => {
-    setCurrentDiscovery(null);
-  };
-
-  const clearSoundTrigger = () => {
-    setSoundTrigger(null);
-  };
+  const closeDiscovery = () => setCurrentDiscovery(null);
+  const clearSoundTrigger = () => setSoundTrigger(null);
 
   return {
     quizState,
@@ -258,17 +231,20 @@ export const useQuizLogic = () => {
     selectedAnswer,
     soundTrigger,
     currentDiscovery,
+
     startQuiz,
     handleAnswer,
     continueFromRevelation,
     continueFromPattern,
     continueFromPreEmail,
     submitEmailAndName,
+
     getCurrentQuestion,
     getRevelationText,
     getPatternDescription,
     getFinalProfile,
-    handleContinueToVSL,
+
+    handleContinueToVSL, // mantém para compatibilidade com UI
     handleDiscoveryUnlock,
     closeDiscovery,
     clearSoundTrigger,

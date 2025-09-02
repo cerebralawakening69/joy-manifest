@@ -1,6 +1,6 @@
 // src/config.ts
 export const WEB_APP_URL =
-  "https://script.google.com/macros/s/AKfycbzqkAXp2WSz5C77RRg73XRFzyjtX3Iz9RzLPkZWSmV1h3Kuk3qnuayd7LM5Jbls_PA8/exec";
+  "https://script.google.com/macros/s/AKfycbwHBXJFBdS9yy7J9jPW6PK908DfJ920EuA3A0lqx_3RBAu58sx62uM2ATf1598RYx5M/exec";
 
 // Seus links de afiliado
 export const AFF_LINK_EMAIL =
